@@ -1,7 +1,11 @@
-a = 1
-b = -5
-c = 6
-D = b ** 2 - 4 * a * c
-x1 = (-b + D ** 0.5) / (2 * a)
-x2 = (-b - D ** 0.5) / (2 * a)
-print(D, x1, x2)
+x = int(input('Введите максимальное значение счётчика: '))
+for i in range(x+1):
+    if i < 2:
+        continue
+    elif i > 5:
+        break
+    else:
+        print(i)
+# else:
+if i == x:
+    print('Достигли конца цикла нормальным путём (Else)')
