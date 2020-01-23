@@ -2,7 +2,7 @@ def count_fib(x):
     global fib1
     global fib2
     count = 0
-    print('Ряд:', end=' ')
+    print('Ряд следующих чисел:', end=' ')
     while count < int(n):
         fib = fib1 + fib2
         fib1 = fib2
