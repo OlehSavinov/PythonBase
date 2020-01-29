@@ -17,25 +17,40 @@ In the 2012 Harvard Business Review article "Data Scientist: The Sexiest Job of 
 In 2013, the IEEE Task Force on Data Science and Advanced Analytics[27] was launched. In 2013, the first "European Conference on Data Analysis (ECDA)" was organised in Luxembourg, establishing the European Association for Data Science (EuADS). The first international conference: IEEE International Conference on Data Science and Advanced Analytics was launched in 2014.[28] In 2014, General Assembly launched student-paid bootcamp and The Data Incubator launched a competitive free data science fellowship.[29] In 2014, the American Statistical Association section on Statistical Learning and Data Mining renamed its journal to "Statistical Analysis and Data Mining: The ASA Data Science Journal" and in 2016 changed its section name to "Statistical Learning and Data Science".[30] In 2015, the International Journal on Data Science and Analytics[31] was launched by Springer to publish original work on data science and big data analytics. In September 2015 the Gesellschaft für Klassifikation (GfKl) added to the name of the Society "Data Science Society" at the third ECDA conference at the University of Essex, Colchester, UK.
 """
 
+lat_lower = 'abcdefghijklmnopqrstuvwxyz'
+lat_upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+lat_total = lat_lower + lat_upper
+lower_text = TEXT.lower()
+
 #ex1-------------------------------------
 upper = 0
 for i in TEXT:
-    if i in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ':
+    if i in lat_upper:
         upper += 1
-print(upper)
 
 lower = 0
 for i in TEXT:
-    if i in 'abcdefghijklmnopqrstuvwxyz':
+    if i in lat_lower:
         lower += 1
-print(lower)
 
 total = upper + lower
-print(total)
+
+res_ex1 = {
+    'total': total,
+    'upper': upper,
+    'lower': lower,
+}
+
 
 #ex2-------------------------------------
+res_ex2 = []
+for i in lat_lower:
+    c = 0
+    c += lower_text.count(i)
+    res = tuple((i, c))
+    res_ex2.append(res)
 
 
 #result-----------------------------------------------------
-result = {'1': [total, upper, lower]}
+result = {'1': res_ex1, '2': res_ex2}
 print(result)
