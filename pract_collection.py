@@ -50,7 +50,11 @@ for i in lat_lower:
     res = tuple((i, c))
     res_ex2.append(res)
 
+#ex3-------------------------------------
+res_ex3 = list(res_ex2)
+res_ex3.sort(key=lambda i: i[1])
+
 
 #result-----------------------------------------------------
-result = {'1': res_ex1, '2': res_ex2}
+result = {'1': res_ex1, '2': res_ex2, '3': res_ex3}
 print(result)
