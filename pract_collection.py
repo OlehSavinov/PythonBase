@@ -54,7 +54,16 @@ for i in lat_lower:
 res_ex3 = list(res_ex2)
 res_ex3.sort(key=lambda i: i[1])
 
+#ex4-------------------------------------
+n = 0
+for i in TEXT:
+    while i.isalpha() or i.isdigit():
+        continue
+    else:
+        n += 1
+print(n)
+
 
 #result-----------------------------------------------------
-result = {'1': res_ex1, '2': res_ex2, '3': res_ex3}
-print(result)
+# result = {'1': res_ex1, '2': res_ex2, '3': res_ex3}
+# print(result)
