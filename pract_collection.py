@@ -55,13 +55,16 @@ res_ex3 = list(res_ex2)
 res_ex3.sort(key=lambda i: i[1])
 
 #ex4-------------------------------------
-ts = TEXT.split()
-print(len(ts))
+# ts = TEXT.split()
+# print(ts)
+# print(len(ts))
+n = 0
 for i in TEXT:
-    if not i.isalnum():
-        new_text = TEXT.replace(i, '1')
-        continue
-print(new_text)
+    if i.isalnum():
+        n = n
+    elif not i.isalnum():
+        n += 1
+print(n)
 
 
 
