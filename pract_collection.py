@@ -58,9 +58,10 @@ res_ex3.sort(key=lambda i: i[1])
 ts = TEXT.split()
 print(len(ts))
 for i in TEXT:
-    while i.isalnum():
-        i = '2'
-print(TEXT)
+    if not i.isalnum():
+        new_text = TEXT.replace(i, '1')
+        continue
+print(new_text)
 
 
 
