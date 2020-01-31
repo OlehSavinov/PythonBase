@@ -18,7 +18,7 @@ In 2013, the IEEE Task Force on Data Science and Advanced Analytics[27] was laun
 """
 
 lat_lower = 'abcdefghijklmnopqrstuvwxyz'
-lat_upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+lat_upper = lat_lower.upper()
 lat_total = lat_lower + lat_upper
 lower_text = TEXT.lower()
 
@@ -55,13 +55,13 @@ res_ex3 = list(res_ex2)
 res_ex3.sort(key=lambda i: i[1])
 
 #ex4-------------------------------------
-n = 0
+ts = TEXT.split()
+print(len(ts))
 for i in TEXT:
-    while i.isalpha() or i.isdigit():
-        continue
-    else:
-        n += 1
-print(n)
+    while i.isalnum():
+        i = '2'
+print(TEXT)
+
 
 
 #result-----------------------------------------------------
