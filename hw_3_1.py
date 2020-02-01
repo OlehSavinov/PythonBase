@@ -18,7 +18,7 @@ def max_len_keys(d):
             m = i
     return len(m)
 
-t = inp_text()
+t = inp_text().lower()
 for i in punctuation:
     t = t.replace(i, ' ')
 spl_text = t.split()
@@ -26,6 +26,7 @@ d = dict()
 for i in spl_text:
     d[i] = spl_text.count(i)
 
+print('Статистика слов:')
 for key, value in d.items():
     res = '| {0:<{1}} | {2} |'.format(key, max_len_keys(d), value)
     print(res)
