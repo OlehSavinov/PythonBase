@@ -1,4 +1,4 @@
-from string import whitespace, punctuation
+from string import punctuation
 
 def inp_text():
     s = str()
@@ -10,14 +10,22 @@ def inp_text():
             s += text + ' '
     return s
 
-# print(inp_text())
+def max_len_keys(d):
+    l = list(d.keys())
+    m = l[0]
+    for i in l[1:]:
+        if len(i) > len(m):
+            m = i
+    return len(m)
 
 t = inp_text()
 for i in punctuation:
     t = t.replace(i, ' ')
-
 spl_text = t.split()
 d = dict()
 for i in spl_text:
     d[i] = spl_text.count(i)
-print(d)
+
+for key, value in d.items():
+    res = '| {0:<{1}} | {2} |'.format(key, max_len_keys(d), value)
+    print(res)
