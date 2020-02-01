@@ -1,3 +1,5 @@
+from string import whitespace, punctuation
+
 def inp_text():
     s = str()
     while True:
@@ -10,9 +12,11 @@ def inp_text():
 
 # print(inp_text())
 
-for i in inp_text():
+t = inp_text()
+for i in punctuation:
+    t = t.replace(i, ' ')
 
-spl_text = inp_text().split()
+spl_text = t.split()
 d = dict()
 for i in spl_text:
     d[i] = spl_text.count(i)
