@@ -60,10 +60,9 @@ res_ex3.sort(key=lambda i: i[1])
 # print(len(ts))
 n = 0
 for i in TEXT:
-    if i.isalnum():
-        n = n
-    elif not i.isalnum():
+    if not i.isalnum():
         n += 1
+
 print(n)
 
 
