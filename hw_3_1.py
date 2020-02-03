@@ -10,8 +10,8 @@ def inp_text():
             s += text + ' '
     return s
 
-def max_len_keys(d):
-    l = list(d.keys())
+def max_len(d):
+    l = list(d)
     m = l[0]
     for i in l[1:]:
         if len(i) > len(m):
@@ -24,9 +24,9 @@ for i in punctuation:
 spl_text = t.split()
 d = dict()
 for i in spl_text:
-    d[i] = spl_text.count(i)
+    d[i] = str(spl_text.count(i))
 
 print('Статистика слов:')
 for key, value in d.items():
-    res = '| {0:<{1}} | {2} |'.format(key, max_len_keys(d), value)
+    res = '| {0:<{1}} | {2:>{3}} |'.format(key, max_len(d.keys()), value, max_len(d.values()))
     print(res)
