@@ -48,19 +48,30 @@ def translate(text, dictionary):
             spl_text[i] = vocabluary[spl_text[i]]
     res_list = []
 
-    if text[0] in whitespace:
-        for i in range(len(t_whitespace(TEXT))):
+    if text[0] in whitespace and text[-1] in whitespace:
+        for i in range(len(spl_text)):
+            res_list.append(spl_text[i])
+            res_list.append(t_whitespace(TEXT)[i+1])
+    elif text[0] in whitespace:
+        for i in range(len(spl_text)):
             res_list.append(t_whitespace(TEXT)[i])
             res_list.append(spl_text[i])
+        del res_list[0]
+    elif text[0] not in whitespace and text[-1] not in whitespace:
+        res_list.append(spl_text[0])
+        for i in range(len(spl_text)-1):
+            res_list.append(t_whitespace(TEXT)[i])
+            res_list.append(spl_text[i+1])
     else:
-    for i in range(len(spl_text)):
-        res_list.append(spl_text[i])
-        res_list.append(t_whitespace(TEXT)[i])
+        for i in range(len(spl_text)):
+            res_list.append(spl_text[i])
+            res_list.append(t_whitespace(TEXT)[i])
+
     return res_list
 
 
 if __name__ == "__main__":
-    TEXT = '!Привет привет и как привет///.. дела????'
+    TEXT = 'Привет привет и как привет///.. дела????'
     vocabluary = get_vocabluary(TEXT)
     print('\nСформированный словарь переводов слов из текста (перевод упорядочен по алфавиту):')
     l_voc = list(vocabluary.items())
@@ -69,4 +80,4 @@ if __name__ == "__main__":
         res = '| {0:<{1}} | {2:>{3}} |'.format(key, max_len(vocabluary.keys()), value, max_len(vocabluary.values()))
         print(res)
     print(translate(TEXT, vocabluary))
-    print(t_whitespace(TEXT))
+
