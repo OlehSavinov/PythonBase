@@ -8,10 +8,9 @@ print(l)
 
 l = '$$ /// $$ $$$$ $$$$$$///////$'
 lis = l.split('$')
-# for i in range(len(lis)):
-#     if lis[i] == '':
-#             print('f')
-
-li = [1, 2]
-print(len(li))
-print(range(2))
+ll = []
+for i in range(len(lis)):
+    if lis[i] != '':
+        ll.append(lis[i])
+print(ll)
+print(lis)

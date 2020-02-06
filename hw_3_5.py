@@ -28,14 +28,16 @@ def get_vocabluary(text):
         result[i] = input_translate(i)
     return result
 
-def t_whitespace(text):
-    for i in text:
+def t_whitespace(t):
+    for i in t:
         if i not in (whitespace + punctuation):
-            text = text.lower().replace(i, '$')
-    for i in range(len(text)):
-        if text[i] == '$' and text[i+1] == '$':
-            text = text.
-    return text
+            t = t.lower().replace(i, '$')
+    t = t.split('$')
+    t_w = []
+    for i in range(len(t)):
+        if t[i] != '':
+            t_w.append(t[i])
+    return t_w
 
 def translate(text, dictionary):
     for i in punctuation:
@@ -44,10 +46,21 @@ def translate(text, dictionary):
     for i in range(len(spl_text)):
         if spl_text[i] in vocabluary.keys():
             spl_text[i] = vocabluary[spl_text[i]]
-    return spl_text
+    res_list = []
+
+    if text[0] in whitespace:
+        for i in range(len(t_whitespace(TEXT))):
+            res_list.append(t_whitespace(TEXT)[i])
+            res_list.append(spl_text[i])
+    else:
+    for i in range(len(spl_text)):
+        res_list.append(spl_text[i])
+        res_list.append(t_whitespace(TEXT)[i])
+    return res_list
+
 
 if __name__ == "__main__":
-    TEXT = 'Привет привет и как привет///.. дела????'
+    TEXT = '!Привет привет и как привет///.. дела????'
     vocabluary = get_vocabluary(TEXT)
     print('\nСформированный словарь переводов слов из текста (перевод упорядочен по алфавиту):')
     l_voc = list(vocabluary.items())
