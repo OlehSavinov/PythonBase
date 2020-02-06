@@ -47,7 +47,6 @@ def translate(text, dictionary):
         if spl_text[i] in vocabluary.keys():
             spl_text[i] = vocabluary[spl_text[i]]
     res_list = []
-
     if text[0] in whitespace and text[-1] in whitespace:
         for i in range(len(spl_text)):
             res_list.append(spl_text[i])
@@ -57,7 +56,7 @@ def translate(text, dictionary):
             res_list.append(t_whitespace(TEXT)[i])
             res_list.append(spl_text[i])
         del res_list[0]
-    elif text[0] not in whitespace and text[-1] not in whitespace:
+    elif text[-1] not in whitespace:
         res_list.append(spl_text[0])
         for i in range(len(spl_text)-1):
             res_list.append(t_whitespace(TEXT)[i])
@@ -66,12 +65,16 @@ def translate(text, dictionary):
         for i in range(len(spl_text)):
             res_list.append(spl_text[i])
             res_list.append(t_whitespace(TEXT)[i])
-
-    return res_list
+    res = ''.join(res_list)
+    return res
 
 
 if __name__ == "__main__":
-    TEXT = 'Привет привет и как привет///.. дела????'
+    TEXT = """Здесь определяется текст на котором будет продемонстрирована правильность работы программы.
+    Текст должен быть многострочным.
+    
+    В тексте должны быть пустые строки
+    и использоваться знаки из whitespace, например """ + "\t" + """табуляция"""
     vocabluary = get_vocabluary(TEXT)
     print('\nСформированный словарь переводов слов из текста (перевод упорядочен по алфавиту):')
     l_voc = list(vocabluary.items())
@@ -79,5 +82,5 @@ if __name__ == "__main__":
     for key, value in l_voc:
         res = '| {0:<{1}} | {2:>{3}} |'.format(key, max_len(vocabluary.keys()), value, max_len(vocabluary.values()))
         print(res)
+    print('\nПереведенный текст:')
     print(translate(TEXT, vocabluary))
-
