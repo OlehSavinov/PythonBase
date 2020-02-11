@@ -27,8 +27,10 @@ iii. по всем реквизитам
 4. Вывести список контактов в текстовый файл (отчёт по всем реквизитам).
 '''
 
+from string import whitespace
+
 class Contact:
-    def __init__(self, surname, name, patronymic=None, address=None, mail=None, tel=[], messenger={}):
+    def __init__(self, surname, name, patronymic='НД', address=None, mail=None, tel=[], messenger={}):
         self.surname = surname
         self.name = name
         self.patronymic = patronymic
@@ -77,7 +79,21 @@ adress_book.append(c3)
 inp = input('Для ввода котакта наберите "new": ')
 if inp == 'new':
     surname = input('Введите фамилию: ')
+    while not surname:
+        surname = input('Фамилия - обязательное поле: ')
     name = input('Введите имя: ')
-    new_cont = Contact(surname, name)
+    while not name:
+        name = input('Имя - обязательное поле: ')
+    patronymic = input('Введите отчество: ')
+    address = input('Введите адрес контакта: ')
+    mail_osn = input('Введите основной электронный адрес контакта: ')
+    while ' ' in mail_osn or not '@' in list(mail_osn)[1:-1]:
+        if not mail_osn:
+            break
+        else:
+            mail = input('Электронный адрес должен содержать "@" и не иметь пробелов: ')
+
+
+    new_cont = Contact(surname, name, patronymic, address, mail)
     adress_book.append(new_cont)
 print (adress_book)
