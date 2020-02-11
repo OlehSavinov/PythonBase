@@ -30,7 +30,7 @@ iii. по всем реквизитам
 from string import whitespace
 
 class Contact:
-    def __init__(self, surname, name, patronymic='НД', address=None, mail=None, tel=[], messenger={}):
+    def __init__(self, surname, name, patronymic='НД', address=None, mail=None, tel=[], messenger=[]):
         self.surname = surname
         self.name = name
         self.patronymic = patronymic
@@ -76,8 +76,7 @@ adress_book.append(c1)
 adress_book.append(c2)
 adress_book.append(c3)
 
-inp = input('Для ввода котакта наберите "new": ')
-if inp == 'new':
+def add_contact():
     surname = input('Введите фамилию: ')
     while not surname:
         surname = input('Фамилия - обязательное поле: ')
@@ -91,9 +90,43 @@ if inp == 'new':
     while mail_i:
         while ' ' in mail_i or not '@' in list(mail_i)[1:-1]:
             mail_i = input('Электронный адрес должен содержать "@" и не иметь пробелов: ')
+            if not mail_i:
+                break
+        else:
+            mail.append(mail_i)
+            mail_i = input('Введите дополнительный электронный адрес контакта: ')
+    tel = []
+    tel_i = input('Введите номер телефона контакта (в формате "380669999999"): ')
+    while tel_i:
+        while not tel_i.isdigit() or len(tel_i) != 12:
+            tel_i = input('Номер телефона ожидается в 12-значном числовом формате: ')
+            if not mail_i:
+                break
+        else:
+            tel.append('+' + tel_i)
+            tel_i = input('Введите дополнительный номер телефона контакта: ')
+    messenger = []
+    mes_list = ['facebook', 'viber', 'telegram', 'whatsapp']
+    mes_name = input('Введите название мессенджера {0}: '.format(mes_list))
+    while mes_name:
+        while mes_name not in mes_list:
+            mes_name = input('Необходимо выбрать из представленного списка {0}: '.format(mes_list))
+            if not mes_name:
+                break
+        else:
+            mes_account = input('Введите адрес аккаунта в мессенджере {0}: '.format(mes_name))
+            messenger.append((mes_name, mes_account))
+            mes_name = input('Введите название дополнительного мессенджера {0}: '.format(mes_list))
+    new_cont = Contact(surname, name, patronymic, address, mail, tel, messenger)
+    return new_cont
 
-    mail.append(mail_i)
 
-    new_cont = Contact(surname, name, patronymic, address, mail)
+inp = input('Для ввода котакта наберите "new": ')
+if inp == 'new':
+    new_cont = add_contact()
     adress_book.append(new_cont)
+    print('-'*60)
+    print('Новый контакт "{0} {1}" с id "{2}" успешно добавлен'.format(new_cont.name, new_cont.surname, new_cont.id))
+    print('-' * 60)
+
 print (adress_book)
