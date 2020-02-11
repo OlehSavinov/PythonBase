@@ -86,13 +86,13 @@ if inp == 'new':
         name = input('Имя - обязательное поле: ')
     patronymic = input('Введите отчество: ')
     address = input('Введите адрес контакта: ')
-    mail_osn = input('Введите основной электронный адрес контакта: ')
-    while ' ' in mail_osn or not '@' in list(mail_osn)[1:-1]:
-        if not mail_osn:
-            break
-        else:
-            mail = input('Электронный адрес должен содержать "@" и не иметь пробелов: ')
+    mail = []
+    mail_i = input('Введите основной электронный адрес контакта: ')
+    while mail_i:
+        while ' ' in mail_i or not '@' in list(mail_i)[1:-1]:
+            mail_i = input('Электронный адрес должен содержать "@" и не иметь пробелов: ')
 
+    mail.append(mail_i)
 
     new_cont = Contact(surname, name, patronymic, address, mail)
     adress_book.append(new_cont)
