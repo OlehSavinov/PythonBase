@@ -64,6 +64,9 @@ class AddressBook:
         report_of_contacts = '\n'.join(result)
         return f"{report_of_contacts}"
 
+    def view(self):
+
+
 
 
 c1 = Contact('Шевченко', 'Андрей', 'Викторович', 'ул. Хрещатик, 25, кв. 12', 'shevhcenko@gmail.com', '+380683582584', 'facebook: www.facebook.com/shevaa, telegram: andr_shev')
