@@ -30,7 +30,7 @@ iii. по всем реквизитам
 from string import whitespace
 
 class Contact:
-    def __init__(self, surname, name, patronymic='НД', address=None, mail=None, tel=[], messenger=[]):
+    def __init__(self, surname, name, patronymic=None, address=None, mail=None, tel=None, messenger=None):
         self.surname = surname
         self.name = name
         self.patronymic = patronymic
@@ -43,8 +43,8 @@ class Contact:
         self.id = reg_id
 
     def __str__(self):
-        return f"{self.id}: {self.surname}, {self.name}, {self.patronymic}, {self.address}, {self.mail}, {self.tel}, {self.messenger}"
-
+        # return f"Контакт {self.id}: {self.surname} {self.name} {self.patronymic}\nАдрес: {self.address}\nE-mail: {self.mail}\nНомера телефонов: {self.tel}\nМессенджеры: {self.messenger}\n" + '-' * 80
+        return f"{self.id}; {self.surname} {self.name} {self.patronymic}; {self.address}; {self.mail}; {self.tel}; {self.messenger}"
 reg_id = 0
 
 
@@ -64,20 +64,16 @@ class AddressBook:
         report_of_contacts = '\n'.join(result)
         return f"{report_of_contacts}"
 
-    def view(self):
-
-
 
 
 c1 = Contact('Шевченко', 'Андрей', 'Викторович', 'ул. Хрещатик, 25, кв. 12', 'shevhcenko@gmail.com', '+380683582584', 'facebook: www.facebook.com/shevaa, telegram: andr_shev')
 c2 = Contact('Петренко', 'Сергей', 'Петрович', 'ул. Мира, 10, кв. 2', 'petrenko@gmail.com, petr-ko@ukr.net', '+3809351348655', 'viber: petrenKO')
 c3 = Contact('Короленко', 'Андрей', 'Владиславович', 'ул. Милютенко, 17, кв. 129', 'korolenko17@gmail.com', '+380972645123, +380635245548', 'telegram: kor_andr, whatsapp: kor_andr')
 
-
-adress_book = AddressBook()
-adress_book.append(c1)
-adress_book.append(c2)
-adress_book.append(c3)
+address_book = AddressBook()
+address_book.append(c1)
+address_book.append(c2)
+address_book.append(c3)
 
 def add_contact():
     surname = input('Введите фамилию: ')
@@ -98,6 +94,7 @@ def add_contact():
         else:
             mail.append(mail_i)
             mail_i = input('Введите дополнительный электронный адрес контакта: ')
+    mail = ', '.join(mail)
     tel = []
     tel_i = input('Введите номер телефона контакта (в формате "380669999999"): ')
     while tel_i:
@@ -108,6 +105,7 @@ def add_contact():
         else:
             tel.append('+' + tel_i)
             tel_i = input('Введите дополнительный номер телефона контакта: ')
+    tel = ', '.join(tel)
     messenger = []
     mes_list = ['facebook', 'viber', 'telegram', 'whatsapp']
     mes_name = input('Введите название мессенджера {0}: '.format(mes_list))
@@ -120,16 +118,38 @@ def add_contact():
             mes_account = input('Введите адрес аккаунта в мессенджере {0}: '.format(mes_name))
             messenger.append((mes_name, mes_account))
             mes_name = input('Введите название дополнительного мессенджера {0}: '.format(mes_list))
+    messenger = dict(messenger)
     new_cont = Contact(surname, name, patronymic, address, mail, tel, messenger)
     return new_cont
 
+def view(adr):
+    def max_len(l):
+        l_res = []
+        for i in l:
+            l_res.append(len(i))
+        return max(l_res)
+    list_cont = adr.split('\n')
+    print(list_cont)
+    s = []
+    for i in range(len(list_cont)):
+        s.append(list_cont[i].split('; '))
+    print(s)
+    for j in range(len(list_cont)):
+        res = '| {0:<{1}} | {2:>{3}} |'.format(s[j][0], max_len(s[j][0]), s[j][1], max_len((s[j][1])))
+        print(res)
 
-inp = input('Для ввода котакта наберите "new": ')
+
+
+inp = input('Для ввода контакта наберите "new": ')
 if inp == 'new':
     new_cont = add_contact()
-    adress_book.append(new_cont)
+    address_book.append(new_cont)
     print('-'*60)
     print('Новый контакт "{0} {1}" с id "{2}" успешно добавлен'.format(new_cont.name, new_cont.surname, new_cont.id))
     print('-' * 60)
 
-print (adress_book)
+
+
+# print (adress_book)
+# print(address_book)
+view(str(address_book))

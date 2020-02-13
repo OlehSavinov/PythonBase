@@ -16,6 +16,7 @@
 # print(lis)
 
 l = ['aaa', 'bbbbbbb', 'cc']
-for i in len[l]:
-    l_max = max(l)
-print(l_max)
+l1 = []
+for i in l:
+    l1.append(len(i))
+print(max(l1))
