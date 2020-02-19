@@ -14,9 +14,16 @@
 #         ll.append(lis[i])
 # print(ll)
 # print(lis)
+#
+# l = ['aaa', 'bbbbbbb', 'cc']
+# l1 = []
+# for i in l:
+#     l1.append(len(i))
+# print(max(l1))
 
-l = ['aaa', 'bbbbbbb', 'cc']
-l1 = []
-for i in l:
-    l1.append(len(i))
-print(max(l1))
+l = [['aa', 'bbb', 'c'], ['aaaaaa', 'b', 'cccccccccccccc'], ['asf', 'bnbnwenewnwenwe', 'c', 'sb']]
+l_res = []
+for i in range(len(l)):
+    l_res.append(len(l[i][2]))
+print(max(l_res))
+# print(max(l_res))
