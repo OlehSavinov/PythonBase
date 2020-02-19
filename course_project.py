@@ -27,7 +27,7 @@ iii. по всем реквизитам
 4. Вывести список контактов в текстовый файл (отчёт по всем реквизитам).
 '''
 
-from string import whitespace
+import pickle
 
 class Contact:
     def __init__(self, surname, name, patronymic=None, address=None, mail=None, tel=None, messenger=None):
@@ -69,14 +69,12 @@ class AddressBook:
                 return cont
 
     def edit(self, cont_id, atr, val):
-        cont = self.search_id(cont_id)
-        if not cont:
-            raise IndexError(f'Контакт с индексом {cont_id} не найден!')
+        cont = self.del_cont(cont_id)
         res_list = str(cont).split('; ')
         res_list[atr] = val
         res = '; '.join(res_list)
-        self.contacts
-        return res_list
+        self.contacts.append(res)
+        return res
 
     def del_cont(self, cont_id):
         cont = self.search_id(cont_id)
@@ -84,6 +82,11 @@ class AddressBook:
             raise IndexError(f'Контакт с индексом {cont_id} не найден!')
         self.contacts.remove(cont)
         return cont
+
+    def save_cont(self):
+        with open('file.txt', 'w') as f:
+            f.write(address_book.__str__())
+
 
 
 c1 = Contact('Шевченко', 'Андрей', 'Викторович', 'ул. Хрещатик, 25, кв. 12', 'shevhcenko@gmail.com', '+380683582584', 'facebook: www.facebook.com/shevaa, telegram: andr_shev')
@@ -165,7 +168,7 @@ def view(adr):
 # def edit_cont(id):
 
 view(str(address_book))
-inp = input('Для ввода контакта наберите "new"\nДля изменения контакта наберите "edit"\nДля удаления контакта наберите "del"\n')
+inp = input('Для ввода контакта наберите "new"\nДля изменения контакта наберите "edit"\nДля удаления контакта наберите "del"\nДля сохранения на диск наберите "save"\n')
 if inp == 'new':
     new_cont = add_contact()
     address_book.append(new_cont)
@@ -184,7 +187,9 @@ elif inp == 'del':
     if del_confirm in 'YyДд':
         address_book.del_cont(ed)
         print('Контакт {0} удален успешно'.format(ed))
-view(str(address_book))
+elif inp == 'save':
+    address_book.save_cont()
+
 # print (adress_book)
 # print(address_book)
 # view(str(address_book))
