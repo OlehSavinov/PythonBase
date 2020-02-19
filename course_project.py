@@ -63,16 +63,17 @@ class AddressBook:
     def append(self, contact):
         self.contacts.append(contact)
 
-    # def search_id(self, id):
-    #     for cont in self.contacts:
-    #         if cont.id == id:
-    #             return cont
-    #
-    # def edit(self, cont_id):
-    #     cont = self.search_id(cont_id)
-    #     if not cont:
-    #         raise IndexError(f'Контакт с индексом {cont_id} не найден!')
-    #     print(cont)
+    def search_id(self, id):
+        for cont in self.contacts:
+            if cont.id == int(id):
+                return cont
+
+    def edit(self, cont_id, ind):
+        cont = self.search_id(cont_id)
+        if not cont:
+            raise IndexError(f'Контакт с индексом {cont_id} не найден!')
+        if ind == 'name':
+
 
 
 c1 = Contact('Шевченко', 'Андрей', 'Викторович', 'ул. Хрещатик, 25, кв. 12', 'shevhcenko@gmail.com', '+380683582584', 'facebook: www.facebook.com/shevaa, telegram: andr_shev')
@@ -151,7 +152,7 @@ def view(adr):
         res = '| {0:<{1}}  | {2:<{3}} | {4:<{5}} | {6:<{7}} | {8:<{9}} | {10:<{11}} |'.format(s[j][0], max_len(s, 0), s[j][1], max_len(s, 1), s[j][2], max_len(s, 2), s[j][3], max_len(s, 3), s[j][4], max_len(s, 4), s[j][5], max_len(s, 5))
         print(res)
 
-def edit_cont(id):
+# def edit_cont(id):
 
 
 inp = input('Для ввода контакта наберите "new": ')
@@ -163,7 +164,7 @@ if inp == 'new':
     print('-' * 60)
 if inp == 'edit':
     ed = input('Какой из контактов Вы хотели бы изменить? Введите id контакта: ')
-    edit_cont(ed)
+    print(address_book.edit(ed))
 
 # print (adress_book)
 # print(address_book)
