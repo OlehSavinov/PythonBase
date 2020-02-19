@@ -68,12 +68,22 @@ class AddressBook:
             if cont.id == int(id):
                 return cont
 
-    def edit(self, cont_id, ind):
+    def edit(self, cont_id, atr, val):
         cont = self.search_id(cont_id)
         if not cont:
             raise IndexError(f'Контакт с индексом {cont_id} не найден!')
-        if ind == 'name':
+        res_list = str(cont).split('; ')
+        res_list[atr] = val
+        res = '; '.join(res_list)
+        self.contacts
+        return res_list
 
+    def del_cont(self, cont_id):
+        cont = self.search_id(cont_id)
+        if not cont:
+            raise IndexError(f'Контакт с индексом {cont_id} не найден!')
+        self.contacts.remove(cont)
+        return cont
 
 
 c1 = Contact('Шевченко', 'Андрей', 'Викторович', 'ул. Хрещатик, 25, кв. 12', 'shevhcenko@gmail.com', '+380683582584', 'facebook: www.facebook.com/shevaa, telegram: andr_shev')
@@ -154,18 +164,27 @@ def view(adr):
 
 # def edit_cont(id):
 
-
-inp = input('Для ввода контакта наберите "new": ')
+view(str(address_book))
+inp = input('Для ввода контакта наберите "new"\nДля изменения контакта наберите "edit"\nДля удаления контакта наберите "del"\n')
 if inp == 'new':
     new_cont = add_contact()
     address_book.append(new_cont)
     print('-'*60)
     print('Новый контакт "{0} {1}" с id "{2}" успешно добавлен'.format(new_cont.name, new_cont.surname, new_cont.id))
     print('-' * 60)
-if inp == 'edit':
+elif inp == 'edit':
     ed = input('Какой из контактов Вы хотели бы изменить? Введите id контакта: ')
-    print(address_book.edit(ed))
-
+    print('Вы хотите заменить контакт {0}'.format(address_book.search_id(ed)))
+    atr = int(input('Какой атрибут Вы хотели бы заменить?\n1 - ФИО\n2 - Адрес\n3 - E-mail\n4 - Телефоны\n5 - Мессенджеры\n'))
+    val = input('Введите новое значение атрибута: ')
+    print(address_book.edit(ed, atr, val))
+elif inp == 'del':
+    ed = input('Какой из контактов Вы хотели бы удалить? Введите id контакта: ')
+    del_confirm = input('Вы действительно хотите удалить контакт {0}?\nНажмите "YyДд" для подтверждения: '.format(address_book.search_id(ed)))
+    if del_confirm in 'YyДд':
+        address_book.del_cont(ed)
+        print('Контакт {0} удален успешно'.format(ed))
+view(str(address_book))
 # print (adress_book)
 # print(address_book)
 # view(str(address_book))
