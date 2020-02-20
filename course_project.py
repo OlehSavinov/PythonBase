@@ -87,6 +87,26 @@ class AddressBook:
         with open('file.txt', 'w') as f:
             f.write(address_book.__str__())
 
+    def search_name(self, name):
+        l_cont = []
+        for cont in self.contacts:
+            if cont.name == name:
+                l_cont.append(str(cont))
+        return l_cont
+
+    def search_surname(self, surname):
+        l_cont = []
+        for cont in self.contacts:
+            if cont.surname == surname:
+                l_cont.append(str(cont))
+        return l_cont
+
+    def search_all(self, s):
+        for cont in self.contacts:
+            c_spl = cont.split('; ')
+            for i in c_spl:
+                if i == s:
+                    return cont
 
 
 c1 = Contact('Шевченко', 'Андрей', 'Викторович', 'ул. Хрещатик, 25, кв. 12', 'shevhcenko@gmail.com', '+380683582584', 'facebook: www.facebook.com/shevaa, telegram: andr_shev')
@@ -168,7 +188,7 @@ def view(adr):
 # def edit_cont(id):
 
 view(str(address_book))
-inp = input('Для ввода контакта наберите "new"\nДля изменения контакта наберите "edit"\nДля удаления контакта наберите "del"\nДля сохранения на диск наберите "save"\n')
+inp = input('Для ввода контакта наберите "new"\nДля изменения контакта наберите "edit"\nДля удаления контакта наберите "del"\nДля сохранения на диск наберите "save"\nДля поиска контакта наберите "search"\n')
 if inp == 'new':
     new_cont = add_contact()
     address_book.append(new_cont)
@@ -189,6 +209,20 @@ elif inp == 'del':
         print('Контакт {0} удален успешно'.format(ed))
 elif inp == 'save':
     address_book.save_cont()
+elif inp == 'search':
+    inp_search = input('Выберите область поиска: surname (фамилия), name (имя) или all (все поля): ')
+    if inp_search == 'surname':
+        s_surn = input('Введите фамилию для поиска: ')
+        if address_book.search_surname(s_surn):
+            print('Найдены контакты:\n', address_book.search_surname(s_surn))
+        else:
+            print('Такая фамилия не найдена')
+    if inp_search == 'name':
+        s_name = input('Введите имя для поиска: ')
+        if address_book.search_name(s_name):
+            print('Найдены контакты:\n', address_book.search_name(s_name))
+        else:
+            print('Такое имя не найдено')
 
 # print (adress_book)
 # print(address_book)
