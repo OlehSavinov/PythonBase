@@ -27,7 +27,7 @@ iii. по всем реквизитам
 4. Вывести список контактов в текстовый файл (отчёт по всем реквизитам).
 '''
 
-import pickle
+import sys
 
 class Contact:
     def __init__(self, surname, name, patronymic=None, address=None, mail=None, tel=None, messenger=None):
@@ -103,7 +103,7 @@ class AddressBook:
 
     def search_all(self, s):
         for cont in self.contacts:
-            c_spl = cont.split('; ')
+            c_spl = str(cont).split('; ')
             for i in c_spl:
                 if i == s:
                     return cont
@@ -111,7 +111,7 @@ class AddressBook:
 
 c1 = Contact('Шевченко', 'Андрей', 'Викторович', 'ул. Хрещатик, 25, кв. 12', 'shevhcenko@gmail.com', '+380683582584', 'facebook: www.facebook.com/shevaa, telegram: andr_shev')
 c2 = Contact('Петренко', 'Сергей', 'Петрович', 'ул. Мира, 10, кв. 2', 'petrenko@gmail.com, petr-ko@ukr.net', '+3809351348655', 'viber: petrenKO')
-c3 = Contact('Короленко', 'Андрей', 'Владиславович', 'ул. Милютенко, 17, кв. 129', 'korolenko17@gmail.com', '+380972645123, +380635245548', 'telegram: kor_andr, whatsapp: kor_andr')
+c3 = Contact('Короленко', 'Андрей', 'Сергеевич', 'ул. Милютенко, 17, кв. 129', 'korolenko17@gmail.com', '+380972645123, +380635245548', 'telegram: kor_andr, whatsapp: kor_andr')
 
 address_book = AddressBook()
 address_book.append(c1)
@@ -165,7 +165,7 @@ def add_contact():
     new_cont = Contact(surname, name, patronymic, address, mail, tel, messenger)
     return new_cont
 
-def view(adr):
+def view(adr, output='display'):
     def max_len(l, n):
         l_res = []
         for i in range(len(l)):
@@ -179,22 +179,34 @@ def view(adr):
     for i in range(len(s)):
         for j in range(5):
             l1.append(s[i][j])
-    print('Сформированная таблица списка контактов:')
-    print('| {0:^{1}} | {2:^{3}} | {4:^{5}} | {6:^{7}} | {8:^{9}} | {10:^{11}} |'.format('id', max_len(s, 0), 'ФИО', max_len(s, 1), 'Адрес', max_len(s, 2), 'E-mail', max_len(s, 3), 'Телефоны', max_len(s, 4), 'Мессенджеры', max_len(s, 5)))
+    if output == 'file':
+        f = open('file_view.txt', 'w')
+    else:
+        f = sys.stdout
+    print('Сформированная таблица списка контактов:', file=f)
+    print('| {0:^{1}} | {2:^{3}} | {4:^{5}} | {6:^{7}} | {8:^{9}} | {10:^{11}} |'.format('id', max_len(s, 0), 'ФИО', max_len(s, 1), 'Адрес', max_len(s, 2), 'E-mail', max_len(s, 3), 'Телефоны', max_len(s, 4), 'Мессенджеры', max_len(s, 5)), file=f)
     for j in range(len(s)):
         res = '| {0:<{1}}  | {2:<{3}} | {4:<{5}} | {6:<{7}} | {8:<{9}} | {10:<{11}} |'.format(s[j][0], max_len(s, 0), s[j][1], max_len(s, 1), s[j][2], max_len(s, 2), s[j][3], max_len(s, 3), s[j][4], max_len(s, 4), s[j][5], max_len(s, 5))
-        print(res)
+        print(res, file=f)
 
 # def edit_cont(id):
 
-view(str(address_book))
-inp = input('Для ввода контакта наберите "new"\nДля изменения контакта наберите "edit"\nДля удаления контакта наберите "del"\nДля сохранения на диск наберите "save"\nДля поиска контакта наберите "search"\n')
+# view(str(address_book))
+
+with open('file.txt', 'r') as f:
+    print('Список контактов:\n', f.read(), sep='')
+
+inp = input('Для ввода контакта наберите "new"\nДля вывода контактов на экран наберите "view", в файл - "view_file"\nДля изменения контакта наберите "edit"\nДля удаления контакта наберите "del"\nДля сохранения на диск наберите "save"\nДля поиска контакта наберите "search"\n')
 if inp == 'new':
     new_cont = add_contact()
     address_book.append(new_cont)
     print('-'*60)
     print('Новый контакт "{0} {1}" с id "{2}" успешно добавлен'.format(new_cont.name, new_cont.surname, new_cont.id))
     print('-' * 60)
+elif inp == 'view':
+    view(str(address_book))
+elif inp == 'view_file':
+    view(str(address_book), 'file')
 elif inp == 'edit':
     ed = input('Какой из контактов Вы хотели бы изменить? Введите id контакта: ')
     print('Вы хотите заменить контакт {0}'.format(address_book.search_id(ed)))
@@ -223,7 +235,17 @@ elif inp == 'search':
             print('Найдены контакты:\n', address_book.search_name(s_name))
         else:
             print('Такое имя не найдено')
-
+    if inp_search == 'all':
+        s_all = input('Введите слова для поиска: ')
+        if address_book.search_all(s_all):
+            print('Найдены контакты:\n', address_book.search_all(s_all))
+        else:
+            print('Контакты не найдены')
+else:
+    inp_ex = input('Хотите сохранить список контактов на диск? (наберите "YyДд" для сохранения): ')
+    if inp_ex in 'YyДд':
+        address_book.save_cont()
+        print('Контакты успешно сохранены')
 # print (adress_book)
 # print(address_book)
 # view(str(address_book))
