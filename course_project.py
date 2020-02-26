@@ -212,18 +212,27 @@ while ent in 'YyДд':
         view(str(address_book))
     elif inp == 'view_file':
         view(str(address_book), 'file')
+        print('Таблица контактов успешно выведена в файл')
     elif inp == 'edit':
         ed = input('Какой из контактов Вы хотели бы изменить? Введите id контакта: ')
         print('Вы хотите заменить контакт {0}'.format(address_book.search_id(ed)))
         atr = int(input('Какой атрибут Вы хотели бы заменить?\n1 - ФИО\n2 - Адрес\n3 - E-mail\n4 - Телефоны\n5 - Мессенджеры\n'))
         val = input('Введите новое значение атрибута: ')
-        print(address_book.edit(ed, atr, val))
+        print('Контакт успешно отредактирован:\n', address_book.edit(ed, atr, val))
+        inp_ex = input('Хотите сохранить список контактов на диск? (наберите "YyДд" для сохранения): ')
+        if inp_ex in 'YyДд':
+            address_book.save_cont()
+            print('Контакты успешно сохранены')
     elif inp == 'del':
         ed = input('Какой из контактов Вы хотели бы удалить? Введите id контакта: ')
         del_confirm = input('Вы действительно хотите удалить контакт {0}?\nНажмите "YyДд" для подтверждения: '.format(address_book.search_id(ed)))
         if del_confirm in 'YyДд':
             address_book.del_cont(ed)
             print('Контакт {0} удален успешно'.format(ed))
+        inp_ex = input('Хотите сохранить список контактов на диск? (наберите "YyДд" для сохранения): ')
+        if inp_ex in 'YyДд':
+            address_book.save_cont()
+            print('Контакты успешно сохранены')
     elif inp == 'save':
         address_book.save_cont()
     elif inp == 'search':
