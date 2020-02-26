@@ -85,7 +85,7 @@ class AddressBook:
         return cont
 
     def save_cont(self):
-        with open('file.txt', 'a') as f:
+        with open('file.txt', 'w') as f:
             f.write(address_book.__str__())
 
     def search_name(self, name):
@@ -191,16 +191,21 @@ def view(adr, output='display'):
         print(res, file=f)
 
 
-with open('file_view.txt', 'r') as f:
+with open('file.txt', 'r') as f:
+    print('Список контактов  файле:\n')
     print(f.read())
 
-inp = input('Для ввода контакта наберите "new"\nДля вывода контактов на экран наберите "view", в файл - "view_file"\nДля изменения контакта наберите "edit"\nДля удаления контакта наберите "del"\nДля сохранения на диск наберите "save"\nДля поиска контакта наберите "search"\n')
+inp = input('\nДля ввода контакта наберите "new"\nДля вывода контактов на экран наберите "view", в файл - "view_file"\nДля изменения контакта наберите "edit"\nДля удаления контакта наберите "del"\nДля сохранения на диск наберите "save"\nДля поиска контакта наберите "search"\n')
 if inp == 'new':
     new_cont = add_contact()
     address_book.append(new_cont)
     print('-'*60)
     print('Новый контакт "{0} {1}" с id "{2}" успешно добавлен'.format(new_cont.name, new_cont.surname, new_cont.id))
     print('-' * 60)
+    inp_ex = input('Хотите сохранить список контактов на диск? (наберите "YyДд" для сохранения): ')
+    if inp_ex in 'YyДд':
+        address_book.save_cont()
+        print('Контакты успешно сохранены')
 elif inp == 'view':
     view(str(address_book))
 elif inp == 'view_file':
@@ -239,12 +244,6 @@ elif inp == 'search':
             print('Найдены контакты:\n', address_book.search_all(s_all))
         else:
             print('Контакты не найдены')
-
-inp_ex = input('Хотите сохранить список контактов на диск? (наберите "YyДд" для сохранения): ')
-if inp_ex in 'YyДд':
-    address_book.save_cont()
-    print('Контакты успешно сохранены')
-ent = 0
 
 # print (adress_book)
 # print(address_book)
