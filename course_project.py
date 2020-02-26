@@ -192,59 +192,58 @@ def view(adr, output='display'):
 
 
 with open('file.txt', 'r') as f:
-    print('Список контактов  файле:\n')
+    print('Список контактов в файле:')
     print(f.read())
 
-inp = input('\nДля ввода контакта наберите "new"\nДля вывода контактов на экран наберите "view", в файл - "view_file"\nДля изменения контакта наберите "edit"\nДля удаления контакта наберите "del"\nДля сохранения на диск наберите "save"\nДля поиска контакта наберите "search"\n')
-if inp == 'new':
-    new_cont = add_contact()
-    address_book.append(new_cont)
-    print('-'*60)
-    print('Новый контакт "{0} {1}" с id "{2}" успешно добавлен'.format(new_cont.name, new_cont.surname, new_cont.id))
-    print('-' * 60)
-    inp_ex = input('Хотите сохранить список контактов на диск? (наберите "YyДд" для сохранения): ')
-    if inp_ex in 'YyДд':
+ent = 'Y'
+while ent in 'YyДд':
+    inp = input('\nДля ввода контакта наберите "new"\nДля вывода контактов на экран наберите "view", в файл - "view_file"\nДля изменения контакта наберите "edit"\nДля удаления контакта наберите "del"\nДля сохранения на диск наберите "save"\nДля поиска контакта наберите "search"\n')
+    if inp == 'new':
+        new_cont = add_contact()
+        address_book.append(new_cont)
+        print('-'*60)
+        print('Новый контакт "{0} {1}" с id "{2}" успешно добавлен'.format(new_cont.name, new_cont.surname, new_cont.id))
+        print('-' * 60)
+        inp_ex = input('Хотите сохранить список контактов на диск? (наберите "YyДд" для сохранения): ')
+        if inp_ex in 'YyДд':
+            address_book.save_cont()
+            print('Контакты успешно сохранены')
+    elif inp == 'view':
+        view(str(address_book))
+    elif inp == 'view_file':
+        view(str(address_book), 'file')
+    elif inp == 'edit':
+        ed = input('Какой из контактов Вы хотели бы изменить? Введите id контакта: ')
+        print('Вы хотите заменить контакт {0}'.format(address_book.search_id(ed)))
+        atr = int(input('Какой атрибут Вы хотели бы заменить?\n1 - ФИО\n2 - Адрес\n3 - E-mail\n4 - Телефоны\n5 - Мессенджеры\n'))
+        val = input('Введите новое значение атрибута: ')
+        print(address_book.edit(ed, atr, val))
+    elif inp == 'del':
+        ed = input('Какой из контактов Вы хотели бы удалить? Введите id контакта: ')
+        del_confirm = input('Вы действительно хотите удалить контакт {0}?\nНажмите "YyДд" для подтверждения: '.format(address_book.search_id(ed)))
+        if del_confirm in 'YyДд':
+            address_book.del_cont(ed)
+            print('Контакт {0} удален успешно'.format(ed))
+    elif inp == 'save':
         address_book.save_cont()
-        print('Контакты успешно сохранены')
-elif inp == 'view':
-    view(str(address_book))
-elif inp == 'view_file':
-    view(str(address_book), 'file')
-elif inp == 'edit':
-    ed = input('Какой из контактов Вы хотели бы изменить? Введите id контакта: ')
-    print('Вы хотите заменить контакт {0}'.format(address_book.search_id(ed)))
-    atr = int(input('Какой атрибут Вы хотели бы заменить?\n1 - ФИО\n2 - Адрес\n3 - E-mail\n4 - Телефоны\n5 - Мессенджеры\n'))
-    val = input('Введите новое значение атрибута: ')
-    print(address_book.edit(ed, atr, val))
-elif inp == 'del':
-    ed = input('Какой из контактов Вы хотели бы удалить? Введите id контакта: ')
-    del_confirm = input('Вы действительно хотите удалить контакт {0}?\nНажмите "YyДд" для подтверждения: '.format(address_book.search_id(ed)))
-    if del_confirm in 'YyДд':
-        address_book.del_cont(ed)
-        print('Контакт {0} удален успешно'.format(ed))
-elif inp == 'save':
-    address_book.save_cont()
-elif inp == 'search':
-    inp_search = input('Выберите область поиска: surname (фамилия), name (имя) или all (все поля): ')
-    if inp_search == 'surname':
-        s_surn = input('Введите фамилию для поиска: ')
-        if address_book.search_surname(s_surn):
-            print('Найдены контакты:\n', address_book.search_surname(s_surn))
-        else:
-            print('Такая фамилия не найдена')
-    if inp_search == 'name':
-        s_name = input('Введите имя для поиска: ')
-        if address_book.search_name(s_name):
-            print('Найдены контакты:\n', address_book.search_name(s_name))
-        else:
-            print('Такое имя не найдено')
-    if inp_search == 'all':
-        s_all = input('Введите слова для поиска: ')
-        if address_book.search_all(s_all):
-            print('Найдены контакты:\n', address_book.search_all(s_all))
-        else:
-            print('Контакты не найдены')
-
-# print (adress_book)
-# print(address_book)
-# view(str(address_book))
+    elif inp == 'search':
+        inp_search = input('Выберите область поиска: surname (фамилия), name (имя) или all (все поля): ')
+        if inp_search == 'surname':
+            s_surn = input('Введите фамилию для поиска: ')
+            if address_book.search_surname(s_surn):
+                print('Найдены контакты:\n', address_book.search_surname(s_surn))
+            else:
+                print('Такая фамилия не найдена')
+        if inp_search == 'name':
+            s_name = input('Введите имя для поиска: ')
+            if address_book.search_name(s_name):
+                print('Найдены контакты:\n', address_book.search_name(s_name))
+            else:
+                print('Такое имя не найдено')
+        if inp_search == 'all':
+            s_all = input('Введите слова для поиска: ')
+            if address_book.search_all(s_all):
+                print('Найдены контакты:\n', address_book.search_all(s_all))
+            else:
+                print('Контакты не найдены')
+    ent = input('Продолжить работу с базой? (для продолжения наберите "YyДд"): ')
