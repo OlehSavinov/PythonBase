@@ -29,6 +29,8 @@ iii. по всем реквизитам
 
 import sys
 
+reg_id = 0
+
 class Contact:
     def __init__(self, surname, name, patronymic=None, address=None, mail=None, tel=None, messenger=None):
         self.surname = surname
@@ -44,7 +46,6 @@ class Contact:
 
     def __str__(self):
         return f"{self.id}; {self.surname} {self.name} {self.patronymic}; {self.address}; {self.mail}; {self.tel}; {self.messenger}"
-reg_id = 0
 
 
 class AddressBook:
@@ -84,7 +85,7 @@ class AddressBook:
         return cont
 
     def save_cont(self):
-        with open('file.txt', 'w') as f:
+        with open('file.txt', 'a') as f:
             f.write(address_book.__str__())
 
     def search_name(self, name):
@@ -189,12 +190,9 @@ def view(adr, output='display'):
         res = '| {0:<{1}}  | {2:<{3}} | {4:<{5}} | {6:<{7}} | {8:<{9}} | {10:<{11}} |'.format(s[j][0], max_len(s, 0), s[j][1], max_len(s, 1), s[j][2], max_len(s, 2), s[j][3], max_len(s, 3), s[j][4], max_len(s, 4), s[j][5], max_len(s, 5))
         print(res, file=f)
 
-# def edit_cont(id):
 
-# view(str(address_book))
-
-with open('file.txt', 'r') as f:
-    print('Список контактов:\n', f.read(), sep='')
+with open('file_view.txt', 'r') as f:
+    print(f.read())
 
 inp = input('Для ввода контакта наберите "new"\nДля вывода контактов на экран наберите "view", в файл - "view_file"\nДля изменения контакта наберите "edit"\nДля удаления контакта наберите "del"\nДля сохранения на диск наберите "save"\nДля поиска контакта наберите "search"\n')
 if inp == 'new':
@@ -241,11 +239,13 @@ elif inp == 'search':
             print('Найдены контакты:\n', address_book.search_all(s_all))
         else:
             print('Контакты не найдены')
-else:
-    inp_ex = input('Хотите сохранить список контактов на диск? (наберите "YyДд" для сохранения): ')
-    if inp_ex in 'YyДд':
-        address_book.save_cont()
-        print('Контакты успешно сохранены')
+
+inp_ex = input('Хотите сохранить список контактов на диск? (наберите "YyДд" для сохранения): ')
+if inp_ex in 'YyДд':
+    address_book.save_cont()
+    print('Контакты успешно сохранены')
+ent = 0
+
 # print (adress_book)
 # print(address_book)
 # view(str(address_book))
