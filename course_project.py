@@ -110,15 +110,6 @@ class AddressBook:
                     return cont
 
 
-c1 = Contact('Шевченко', 'Андрей', 'Викторович', 'ул. Хрещатик, 25, кв. 12', 'shevhcenko@gmail.com', '+380683582584', 'facebook: www.facebook.com/shevaa, telegram: andr_shev')
-c2 = Contact('Петренко', 'Сергей', 'Петрович', 'ул. Мира, 10, кв. 2', 'petrenko@gmail.com, petr-ko@ukr.net', '+3809351348655', 'viber: petrenKO')
-c3 = Contact('Короленко', 'Андрей', 'Сергеевич', 'ул. Милютенко, 17, кв. 129', 'korolenko17@gmail.com', '+380972645123, +380635245548', 'telegram: kor_andr, whatsapp: kor_andr')
-
-address_book = AddressBook()
-address_book.append(c1)
-address_book.append(c2)
-address_book.append(c3)
-
 def add_contact():
     surname = input('Введите фамилию: ')
     while not surname:
@@ -190,6 +181,15 @@ def view(adr, output='display'):
         res = '| {0:<{1}}  | {2:<{3}} | {4:<{5}} | {6:<{7}} | {8:<{9}} | {10:<{11}} |'.format(s[j][0], max_len(s, 0), s[j][1], max_len(s, 1), s[j][2], max_len(s, 2), s[j][3], max_len(s, 3), s[j][4], max_len(s, 4), s[j][5], max_len(s, 5))
         print(res, file=f)
 
+
+c1 = Contact('Шевченко', 'Андрей', 'Викторович', 'ул. Хрещатик, 25, кв. 12', 'shevhcenko@gmail.com', '+380683582584', 'facebook: www.facebook.com/shevaa, telegram: andr_shev')
+c2 = Contact('Петренко', 'Сергей', 'Петрович', 'ул. Мира, 10, кв. 2', 'petrenko@gmail.com, petr-ko@ukr.net', '+3809351348655', 'viber: petrenKO')
+c3 = Contact('Короленко', 'Андрей', 'Сергеевич', 'ул. Милютенко, 17, кв. 129', 'korolenko17@gmail.com', '+380972645123, +380635245548', 'telegram: kor_andr, whatsapp: kor_andr')
+
+address_book = AddressBook()
+address_book.append(c1)
+address_book.append(c2)
+address_book.append(c3)
 
 with open('file.txt', 'r') as f:
     print('Список контактов в файле:')
