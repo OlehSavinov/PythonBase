@@ -119,11 +119,21 @@
 #     # return format(((((vector[1][0] - vector[0][0]) ** 2) + ((vector[1][1] - vector[0][1]) ** 2)) ** 0.5), '.7f')
 #     return (((vector[1][0] - vector[0][0]) ** 2) + ((vector[1][1] - vector[0][1]) ** 2)) ** 0.5
 # print(vector_length([[-3.9, -8.8],[-7.8, 1.7]]))
+#
+# def sc(width,length,gaps):
+#     res = (width * 2 + (length - 2) * 2) / (gaps + 1)
+#     if res.is_integer():
+#         return int(res)
+#     return 0
+#
+# print(sc(3,3,2))
 
-def sc(width,length,gaps):
-    res = (width * 2 + (length - 2) * 2) / (gaps + 1)
-    if res.is_integer():
-        return int(res)
-    return 0
-
-print(sc(3,3,2))
+def make_2d_list(head,row,col):
+    res, r = [], []
+    for j in range(row):
+        for i in range(col):
+            res.append(i + head)
+        r.append(res)
+    return r
+    # return [ for i in range(row)]
+print(make_2d_list(2,3,4))
