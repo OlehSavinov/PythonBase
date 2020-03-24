@@ -127,13 +127,23 @@
 #     return 0
 #
 # print(sc(3,3,2))
+#
+# def make_2d_list(head,row,col):
+#     res, r = [], []
+#     for i in range(row):
+#         for j in range(col):
+#             res.append(j + head + i * col)
+#         r.append(res)
+#         res = []
+#     return r
+# print(make_2d_list(10**10,2,2))
 
-def make_2d_list(head,row,col):
-    res, r = [], []
-    for j in range(row):
-        for i in range(col):
-            res.append(i + head)
-        r.append(res)
-    return r
-    # return [ for i in range(row)]
-print(make_2d_list(2,3,4))
+def largest_sum(s):
+    l = [list(i) for i in s.split('0')]
+    for i in range(len(l)):
+        for j in range(len(l[i])):
+            l[i][j] = int(l[i][j])
+    res = [sum(l[i]) for i in range(len(l))]
+    return max(res)
+
+print(largest_sum('0'))
