@@ -235,8 +235,26 @@
 #         return res
 #
 # print(get_free_urinals('1'))
+#
+# def get_free_urinals(urinals):
+#     return -1 if '11' in urinals else sum(((len(l)-1)//2 for l in f'0{urinals}0'.split('1')))
+#
+# print(get_free_urinals('1'))
+#
+# def high_and_low(numbers):
+#     a = list(map(int, numbers.split(' ')))
+#     return str(max(a)) + ' ' + str(min(a))
+#
+# print(high_and_low('4 5 29 54 4 0 -214 542 -64 1 -3 6 -6'))
 
-def get_free_urinals(urinals):
-    return -1 if '11' in urinals else sum(((len(l)-1)//2 for l in f'0{urinals}0'.split('1')))
+def name_file(fmt, nbr, start):
+    if isinstance(nbr, int) and isinstance(start, int):
+        a = [fmt for i in range(nbr)]
+        for i in range(len(a)):
+            a[i] = a[i].replace('<index_no>', str(start))
+            start += 1
+        return a
+    else:
+        return []
 
-print(get_free_urinals('1'))
+print(name_file('file <index_no>', 0.2, 0))
