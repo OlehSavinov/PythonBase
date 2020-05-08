@@ -246,15 +246,52 @@
 #     return str(max(a)) + ' ' + str(min(a))
 #
 # print(high_and_low('4 5 29 54 4 0 -214 542 -64 1 -3 6 -6'))
+#
+# def name_file(fmt, nbr, start):
+#     if isinstance(nbr, int) and isinstance(start, int):
+#         a = [fmt for i in range(nbr)]
+#         for i in range(len(a)):
+#             a[i] = a[i].replace('<index_no>', str(start))
+#             start += 1
+#         return a
+#     else:
+#         return []
+#
+# print(name_file('file <index_no>', 0.2, 0))
+# def solve(s):
+#     o = [i for i in s if not i.isalnum()]
+#     res = [sum(map(str.isupper, s)), sum(map(str.islower, s)), sum(map(str.isnumeric, s)), len(o)]
+#     return res
+#
+# print(solve('Codewars@codewars123.com'))
 
-def name_file(fmt, nbr, start):
-    if isinstance(nbr, int) and isinstance(start, int):
-        a = [fmt for i in range(nbr)]
-        for i in range(len(a)):
-            a[i] = a[i].replace('<index_no>', str(start))
-            start += 1
-        return a
-    else:
-        return []
+#
+# def celsius_to_romer(temp):
+#     return temp * 0.525 + 7.5
+#
+# print(celsius_to_romer(24))
+# import math
+# def center(strng, width, fill=' '):
+#     if width == 0:
+#         return strng
+#     elif strng == '':
+#         return fill * width
+#     else:
+#         return math.ceil((width - len(strng)) / 2) * fill + strng + (width - len(strng)) // 2 * fill
+#
+# print(center('a', 2, '_'))
 
-print(name_file('file <index_no>', 0.2, 0))
+def VampireNumber(k):
+    rr = [x * y for x in range(11, 850) for y in range(x, int('9' * int(len(str(x))))) if sorted(list(str(x * y))) == sorted(str(x) + str(y))]
+    rr.sort()
+    # res = []
+    # for x in range(11, 850):
+    #     for y in range(x, int('9' * int(len(str(x))))):
+    #         if sorted(list(str(x * y))) == sorted(str(x) + str(y)):
+    #             res.append(x * y)
+    # res.sort()
+    r = rr[k-1]
+    return r
+
+
+print(VampireNumber(3))
