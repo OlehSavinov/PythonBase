@@ -282,16 +282,19 @@
 # print(center('a', 2, '_'))
 
 def VampireNumber(k):
-    rr = [x * y for x in range(11, 850) for y in range(x, int('9' * int(len(str(x))))) if sorted(list(str(x * y))) == sorted(str(x) + str(y))]
-    rr.sort()
-    # res = []
-    # for x in range(11, 850):
-    #     for y in range(x, int('9' * int(len(str(x))))):
-    #         if sorted(list(str(x * y))) == sorted(str(x) + str(y)):
-    #             res.append(x * y)
-    # res.sort()
-    r = rr[k-1]
+    # rr = [x * y for x in range(11, 850) for y in range(x, int('9' * int(len(str(x))))) if sorted(list(str(x * y))) == sorted(str(x) + str(y))]
+    # rr.sort()
+    res = []
+    for x in range(11, 850):
+        for y in range(x, int('9' * int(len(str(x))))):
+            if str(x)[-1] != 0 or str(y)[-1] != 0:
+                m = str(x * y)
+                n = str(x) + str(y)
+                if sorted(list(m)) == sorted(n):
+                    res.append(int(m))
+    res.sort()
+    r = res[k-1]
     return r
 
 
-print(VampireNumber(3))
+print(VampireNumber(150))
