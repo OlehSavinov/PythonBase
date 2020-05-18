@@ -280,21 +280,80 @@
 #         return math.ceil((width - len(strng)) / 2) * fill + strng + (width - len(strng)) // 2 * fill
 #
 # print(center('a', 2, '_'))
+#
+# def VampireNumber(k):
+#     # rr = [x * y for x in range(11, 850) for y in range(x, int('9' * int(len(str(x))))) if sorted(list(str(x * y))) == sorted(str(x) + str(y))]
+#     # rr.sort()
+#     res = []
+#     for x in range(11, 850):
+#         for y in range(x, int('9' * int(len(str(x))))):
+#             if str(x)[-1] != 0 or str(y)[-1] != 0:
+#                 m = str(x * y)
+#                 n = str(x) + str(y)
+#                 if sorted(list(m)) == sorted(n):
+#                     res.append(int(m))
+#     res.sort()
+#     r = res[k-1]
+#     return r
+#
+#
+# print(VampireNumber(150))
 
-def VampireNumber(k):
-    # rr = [x * y for x in range(11, 850) for y in range(x, int('9' * int(len(str(x))))) if sorted(list(str(x * y))) == sorted(str(x) + str(y))]
-    # rr.sort()
-    res = []
-    for x in range(11, 850):
-        for y in range(x, int('9' * int(len(str(x))))):
-            if str(x)[-1] != 0 or str(y)[-1] != 0:
-                m = str(x * y)
-                n = str(x) + str(y)
-                if sorted(list(m)) == sorted(n):
-                    res.append(int(m))
-    res.sort()
-    r = res[k-1]
-    return r
+# class Ship:
+#     def __init__(self, draft, crew):
+#         self.draft = draft
+#         self.crew = crew
+#     def is_worth_it(self):
+#         return True if self.draft - (self.crew * 1.5) > 20 else False
+#
+# EmptyShip = Ship(1, 1)
+# print(Ship.is_worth_it(EmptyShip))
+# def remove(s):
+#     n = 0
+#     for i in s[::-1]:
+#         if i == '!':
+#             n += 1
+#         else:
+#             return s.replace('!', '') + '!' * n
+#
+# print(remove('Hi!!!!!! Hi!!!!!'))
+#
+# def accum(s):
+#     return '-'.join(list(map(str.capitalize, [s[i] * (i + 1) for i in range(len(s))])))
+#
+# print(accum("NyffsGeyylB"))
+
+def no_musical(start_class, end_class, musical_performed_every, enrolment_duration):
+    if musical_performed_every == 0:
+        return end_class - start_class + 1
+    else:
+        res = 0
+        n = list(range(start_class, end_class + 1 + enrolment_duration))
+        for i in range(len(n)):
+            if i % musical_performed_every == 0:
+                n[i] = 0
+        m = [(n[i:enrolment_duration+i]) for i in range(len(n) - enrolment_duration)]
+        for i in m:
+            if 0 not in i:
+                res += 1
+        return res
 
 
-print(VampireNumber(150))
+print(no_musical(2603, 2765, 8, 4))
+
+# if musical_performed_every == 0:
+#     return end_class - start_class + 1
+# else:
+# #      n = [start_class + i for i in range(0, end_class - start_class + 1, musical_performed_every)]
+# # #     # m = [(start_class + i, start_class + i + enrolment_duration) for i in range(0, end_class - start_class + 1)]
+# # #     res = end_class - start_class - (len(n) - 1) * enrolment_duration
+# # #     if res > 0:
+# # #         return res
+# # #     else:
+# # #         return 0
+# #      t = end_class - start_class + 1
+# #      res = ((len(n) - 1) * enrolment_duration + 1)
+# #      if res > 0:
+# #         return res
+# #      else:
+# #         return 0
