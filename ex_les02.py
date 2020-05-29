@@ -66,3 +66,23 @@ print(res)
 # Задача - объединить ключи и значения в словарь
 keys_list = ['a', 'b', 'c', 'd', 'e']
 values_list = [1, 2, 3, 4, 5]
+res = {}
+for i in range(len(keys_list)):
+    res.update({keys_list[i]: values_list[i]})
+print(res)
+
+
+# 2. Дано: та же строка из предыдущего примера.
+# Задача - создать словарь, в котором для всех слов кроме "the" ключем будет само слово, а значением количество букв, из которых оно состоит.
+input_sentence = "the quick brown fox jumps over the lazy dog"
+res = {k: len(k) for k in input_sentence.split(' ') if k != 'the'}
+print(res)
+
+
+# 3. Дано: 3 множества чисел
+# Задача - построить список из всех возможных комбинаций, сумма элементов которых больше 7.
+set1 = {1, 2, 3}
+set2 = {4, 5, 6}
+set3 = {1, 5, 9}
+res = [(x, y, z) for x in set1 for y in set2 for z in set3 if (x + y + z) > 7]
+print(res)
