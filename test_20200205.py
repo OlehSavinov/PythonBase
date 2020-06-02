@@ -377,8 +377,23 @@
 #
 # print(loneliest(65432165432))
 
-def cramer_solver(matrix, vector=0):
-    det = matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0]
-    return det
+# def cramer_solver(matrix, vector=0):
+#     det = matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0]
+#     return det
+#
+# print(cramer_solver([[1, 2], [3, 4]]))
 
-print(cramer_solver([[1, 2], [3, 4]]))
+# def pal(s):
+#     if s == s[::-1]:
+#         print('Палиндром')
+#     else:
+#         print('Не палиндром')
+#
+#
+#
+# pal('asasasdgsdg')
+
+keys_list = [1, 2, 3, 4, 5]
+values_list = ['a', 'b', 'c', 'd', 'e']
+
+print(dict(zip(keys_list, values_list)))
