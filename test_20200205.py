@@ -392,8 +392,13 @@
 #
 #
 # pal('asasasdgsdg')
+#
+# keys_list = [1, 2, 3, 4, 5]
+# values_list = ['a', 'b', 'c', 'd', 'e']
+#
+# print(dict(zip(keys_list, values_list)))
+import numpy as np
 
-keys_list = [1, 2, 3, 4, 5]
-values_list = ['a', 'b', 'c', 'd', 'e']
-
-print(dict(zip(keys_list, values_list)))
+v = np.array([1, 2, 3, 4, 5, 6])
+d = np.ones([1, 5])
+print(v.dot(d))
