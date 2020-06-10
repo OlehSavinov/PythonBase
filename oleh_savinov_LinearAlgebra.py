@@ -61,3 +61,14 @@ def generate_M(n):
 # print(generate_M(A.shape[0]).dot(A))
 
 
+# 6. Решить систему уравнений (можно воспользоваться функцией извлечения корня):
+
+b = np.array([3, 3, 24])
+A = np.array([
+    [47, 71, -2],
+    [0, 11, -8],
+    [1, 1, 1]
+])
+x = np.linalg.inv(A).dot(b)
+a, b, c = np.sqrt(x[0]), x[1], x[2]
+print(a, b, c)
