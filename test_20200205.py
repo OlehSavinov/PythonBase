@@ -399,6 +399,4 @@
 # print(dict(zip(keys_list, values_list)))
 import numpy as np
 
-v = np.array([1, 2, 3, 4, 5, 6])
-d = np.ones([1, 5])
-print(v.dot(d))
+print(np.ones(shape=(2, 2)))
