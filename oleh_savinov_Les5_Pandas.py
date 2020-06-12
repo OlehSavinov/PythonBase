@@ -10,6 +10,10 @@ titanic_data = pd.read_csv('TitanicDataset.csv', sep=',', header=0)
 
 td_fil = titanic_data[~titanic_data['Age'].isna()].copy()
 avg_age = np.mean(td_fil['Age'])
-age_category = np.where(td_fil['Age'] > avg_age, 'above average', 'below average')
-td_fil['Lastname_age'] = td_fil['Name'].apply(lambda x: f"{x.split(',')[0]}, {age_category}", axis = 1)
-print(td_fil[['Age', 'Lastname_age']].head(15))
+td_fil['Lastname_age'] = td_fil['Name'].apply(lambda x: x.split(',')[0]) + ', ' \
+                         + np.where(td_fil['Age'] > avg_age, 'above average', 'below average')
+# print(td_fil[['Age', 'Lastname_age']].head())
+
+
+# 3. Найти среднюю, минимальную и максимальную стоимость билета в зависимости от места посадки и класса каюты
+
