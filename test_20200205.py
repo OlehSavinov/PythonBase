@@ -397,6 +397,11 @@
 # values_list = ['a', 'b', 'c', 'd', 'e']
 #
 # print(dict(zip(keys_list, values_list)))
-import numpy as np
+import pandas as pd
 
-print(np.ones(shape=(2, 2)))
+titanic_data = pd.read_csv(
+    'F:\Олег\Датасайнс\Lesson5_Pandas\Lesson5_Pandas./TitanicDataset.csv',  # путь к файлу, который содержит данные
+    sep=',',  # разделитель столбцов
+    header=0  # номер строки, содержащей заголовок (если заголовка нет, то можно передать -1)
+)
+print(titanic_data.head())
