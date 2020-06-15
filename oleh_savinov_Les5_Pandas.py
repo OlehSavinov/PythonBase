@@ -42,5 +42,5 @@ merged_data = pd.merge(
     on='Lastname',
     how='inner'
 )
-res_table = merged_data[merged_data['PassengerId'] != merged_data['PassengerId_F']]
-# print(res_table[['Name', 'Family']].head(50))
+res_table = merged_data[merged_data['PassengerId'] != merged_data['PassengerId_F']][['Name', 'Family']]
+# print(res_table.head(50))
