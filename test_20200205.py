@@ -399,9 +399,18 @@
 # print(dict(zip(keys_list, values_list)))
 import pandas as pd
 
-titanic_data = pd.read_csv(
-    'F:\Олег\Датасайнс\Lesson5_Pandas\Lesson5_Pandas./TitanicDataset.csv',  # путь к файлу, который содержит данные
-    sep=',',  # разделитель столбцов
-    header=0  # номер строки, содержащей заголовок (если заголовка нет, то можно передать -1)
+salaries = pd.DataFrame(
+    data={
+        'WorkerID': [1, 2, 3, 4, 5, 6],  # ID сотрудника
+        'salary': [1000, 2000, 3000, 4000, 5000, 6000]  # ЗП в месяц
+    }
 )
-print(titanic_data.head())
+
+working_hours = pd.DataFrame(
+    data={
+        'ID': [1, 1, 2, 2, 3, 3, 4, 4, 5, 5],  # ID сотрудника
+        'Period': [1, 2, 1, 2, 1, 2, 1, 2, 1, 2],  # номер месяца
+        'WH': [10, 10, 12, 24, 11, 13, 23, 11, 9, 8]  # кол-во рабочих часов
+    }
+)
+
