@@ -44,3 +44,9 @@ merged_data = pd.merge(
 )
 res_table = merged_data[merged_data['PassengerId'] != merged_data['PassengerId_F']][['Name', 'Family']]
 # print(res_table.head(50))
+
+
+# 5. Заменить пропущенные значения возраста на среднее, в зависимости от пола и класса каюты
+
+titanic_data.loc[titanic_data['Age'].isna(), 'Age'] = titanic_data.groupby(['Sex', 'Pclass'])['Age'].transform(np.mean)
+# print(titanic_data[['PassengerId', 'Age']].head(50))
