@@ -1,34 +1,35 @@
 import pandas as pd
 import re
-import os
 
 # Шляхи до файлів (Windows)
 input_nom_path = r'F:\Олег\ЗЗР\Input_nom_zzrd.xlsx'
 ref_path = r'F:\Олег\СЗР\Справочники\Справочник продуктов.xlsx'
 output_path = r'F:\Олег\ЗЗР\Output_nom_zzrd.xlsx'
 
-# 1) Зчитуємо номенклатуру та добрива з колонками "Номенклатура з одиницею виміру", "Номенклатура", "Одиниця виміру"
+# 1) Зчитуємо вхідну номенклатуру з колонками:
+#    "Номенклатура з одиницею виміру", "Номенклатура", "Одиниця виміру", "Тип УКТЗЕД"
 df_nom = pd.read_excel(input_nom_path, sheet_name='номенклатура')
 
-# 2) Зчитуємо довідник продуктів та фільтруємо за категоріями ЗЗР і Добрива
-df_ref = pd.read_excel(ref_path, sheet_name='спрПродукты')
-df_ref = df_ref[df_ref['Категорія'].isin(['ЗЗР', 'Добрива'])][['Загальна назва', 'Внутрішній код']]
+# 2) Зчитуємо довідник продуктів та фільтруємо за категоріями
+df_ref_raw = pd.read_excel(ref_path, sheet_name='спрПродукты')
+df_ref = df_ref_raw[df_ref_raw['Категорія'].isin(['ЗЗР','Добрива'])][['Загальна назва','Внутрішній код']]
 
-# 3) Розбиваємо записи з '/' у довіднику на окремі рядки
-ref_expanded = []
+# 3) Розділяємо через "/" на окремі рядки
+data = []
 for _, row in df_ref.iterrows():
     for part in str(row['Загальна назва']).split('/'):
-        new_row = row.copy()
-        new_row['Загальна назва'] = part.strip()
-        ref_expanded.append(new_row)
-df_ref = pd.DataFrame(ref_expanded)
+        nr = row.copy()
+        nr['Загальна назва'] = part.strip()
+        data.append(nr)
+df_ref = pd.DataFrame(data)
 
-# 4) Фільтрація довідника: назви >=4 символів та виняткові коди
+# 4) Фільтрація довідника: назви >=4 символів та виключені коди
 norm_len = (df_ref['Загальна назва'].astype(str)
             .str.replace(r"[^0-9a-zA-Zа-яА-ЯіїєґІЇЄҐ]+", '', regex=True)
             .str.len())
 df_ref = df_ref[norm_len >= 4]
 codes_to_remove = [
+    # повний список виняткових кодів
     'PREG-000157','PFUN-000575','PGER-000136','PGER-000122','PFUN-000336',
     'PREG-000137','PFUN-000144','PFUN-000190','PGER-001029','PPRT-000164',
     'PGER-000893','PREG-000022','PGER-000982','PGER-000361','PPRT-000047',
@@ -53,85 +54,109 @@ codes_to_remove = [
 df_ref = df_ref[~df_ref['Внутрішній код'].isin(codes_to_remove)]
 
 # 5) Автозаміни для нормалізації тексту
-dependencies = {
-    'й': 'ї','и': 'і','фф': 'ф','ал': 'ап','max': 'макс',
-    'ват': 'вант','e': 'є','raiza': 'райза','э': 'е',
-    'i': 'і','c': 'с','t': 'т','x': 'х','фитолекарь': 'фітолікар',
-    'калійхлористий': 'kcl','яравітабортрак': 'yaravitabortrac','інтермаг': 'intermag','пп': 'п',
-    'квантум': 'quantum','гуміфілд': 'humifield','нутрімікс': 'nutrimix'
+replacements = {
+    'й':'ї','и':'і','фф':'ф','ал':'ап','max':'макс',
+    'ват':'вант','e':'є','raiza':'райза','э':'е',
+    'i':'і','c':'с','t':'т','x':'х','фитолекарь':'фітолікар',
+    'калійхлористий':'kcl','яравітабортрак':'yaravitabortrac',
+    'інтермаг':'intermag','мілілітрів':'мл','пп':'п',
+    'квантум':'quantum','гуміфілд':'humifield','нутрімікс':'nutrimix',
+    'КАС-32':'UAN-32'
 }
 
 def normalize_and_replace(text):
     s = str(text).lower()
-    for wrong, correct in dependencies.items():
+    # уніфікуємо дефіси різних типів в пробіли
+    s = re.sub(r'[-–—]', ' ', s)
+    for wrong, correct in replacements.items():
         s = s.replace(wrong, correct)
-    # Залишаємо літери, цифри, пробіли, '+' та '/'
-    return re.sub(r'[^0-9a-zа-яіїєґ+\/ ]', '', s)
+    # Зберігаємо літери, цифри, пробіли, '+', '/', '*', ',', '.'
+    return re.sub(r'[^0-9a-zа-яіїєґ\+\*/\/,\. ]', '', s)
 
-# 6) Підготовка довідника
+# 6) Підготовка довідника: нормалізовані назви
 df_ref['norm_name'] = df_ref['Загальна назва'].apply(normalize_and_replace)
-df_ref = df_ref.assign(name_len=df_ref['norm_name'].str.len()).sort_values('name_len', ascending=False)
+df_ref = df_ref.sort_values('norm_name', key=lambda c: c.str.len(), ascending=False)
 
-# 7) Підбір внутрішнього коду
+# 7) Мапи одиниць: повна та підмножина без 'т'
+full_unit_map = {
+    1:{'л','л.','кг','кл','літр','кілограм','літристаре','литр','k','l'},
+    1000:{'т','тн','тисл','ттовпрод','ттовпродукт','м3','тонна','n',
+           'твантажопідйом','тмістк','тона','кубметр'},
+    0.001:{'г','мл','гр'},
+    100:{'ц'},
+    1000000:{'тист'},
+    0.5:{'05кг'},
+    0.000001:{'мг'}
+}
+text_unit_map = {k:v for k,v in full_unit_map.items() if k != 1000}
+
+# 8) Підбір внутрішнього коду за substring
 def match_code(nom_text):
-    desc_norm = normalize_and_replace(nom_text)
+    desc = normalize_and_replace(nom_text)
+    search = re.sub(r'[\,\.]', '', desc)
     for _, row in df_ref.iterrows():
-        if row['norm_name'] and row['norm_name'] in desc_norm:
+        if row['norm_name'] in search:
             return row['Внутрішній код']
     return None
 
-# 8) Налаштування коефіцієнтів базової одиниці
-unit_map = {
-    1: {'л','кг','кл','літр','кілограмм','литр','k'},
-    1000: {'т','тн','тисл','ттовпрод','ттовпродукт','м3','тонна','n','твантажопідйом','тмістк','тона','кубметр'},
-    0.001: {'г','мл','гр'},
-    100: {'ц'},
-    1000000: {'тист'},
-    0.5: {'05кг'},
-    0.000001: {'мг'}
-}
-
+# 9) Розрахунок коефіцієнту базової одиниці
 def calc_coeff(nom_text, unit_text):
-    u = str(unit_text).lower().replace(' ', '')
-    for coeff, units in unit_map.items():
+    u = str(unit_text).lower().replace(' ', '').replace('.', '')
+    # валюта гривня
+    if u == 'грн':
+        return 1
+    # прямий мапінг одиниці
+    for coeff, units in full_unit_map.items():
         if u in units:
             return coeff
-    text_norm = str(nom_text).lower()
-    for wrong, correct in dependencies.items():
-        text_norm = text_norm.replace(wrong, correct)
-    for coeff, units in unit_map.items():
+    # пошук по тексту (без 'т')
+    txt = normalize_and_replace(nom_text)
+    for coeff, units in text_unit_map.items():
         for unit in units:
-            pattern = rf"(?<!\d)(\d+[.,]?\d*)\s*{re.escape(unit)}(?!/)"
-            m = re.search(pattern, text_norm)
-            if m:
-                num = float(m.group(1).replace(',', '.'))
-                return num * coeff
+            pattern = rf"(?<!\d)(\d+[.,]?\d*)\s*{re.escape(unit)}\b"
+            for m in re.finditer(pattern, txt):
+                return float(m.group(1).replace(',', '.')) * coeff
     return None
 
+# 10) Розрахунок фасування у літрах (最大값)
 def calc_pack_liters(nom_text):
-    text_norm = str(nom_text).lower()
-    for wrong, correct in dependencies.items():
-        text_norm = text_norm.replace(wrong, correct)
-    for coeff, units in unit_map.items():
+    txt = normalize_and_replace(nom_text)
+    vals = []
+    for coeff, units in text_unit_map.items():
         for unit in units:
-            pattern = rf"(?<!\d)(\d+[.,]?\d*)\s*{re.escape(unit)}(?!/)"
-            m = re.search(pattern, text_norm)
-            if m:
-                num = float(m.group(1).replace(',', '.'))
-                return num * coeff
+            pattern = rf"(?<!\d)(\d+[.,]?\d*)\s*{re.escape(unit)}\b"
+            for m in re.finditer(pattern, txt):
+                vals.append(float(m.group(1).replace(',', '.')) * coeff)
+    return max(vals) if vals else None
+
+# 11) Застосування функцій до DataFrame
+df_nom['Внутрішній код'] = df_nom['Номенклатура'].apply(match_code)
+df_nom['Коефіцієнт базової одиниці'] = df_nom.apply(
+    lambda r: calc_coeff(r['Номенклатура'], r.get('Одиниця виміру','')), axis=1
+)
+df_nom['Фасування у літрах'] = df_nom['Номенклатура'].apply(calc_pack_liters)
+
+# 12) Дрібне фасування залежно від 'Тип УКТЗЕД'
+def mark_small(row):
+    lit = row['Фасування у літрах']
+    typ = row.get('Тип УКТЗЕД','')
+    if pd.isna(lit):
+        return None
+    if typ == 'Добрива' and lit <= 10:
+        return 1
+    if typ == 'ЗЗР' and lit <= 0.3:
+        return 1
     return None
 
-# 9) Застосування функцій до DF
-df_nom['Внутрішній код'] = df_nom['Номенклатура'].apply(match_code)
-df_nom['Коефіцієнт базової одиниці'] = df_nom.apply(lambda r: calc_coeff(r['Номенклатура'], r.get('Одиниця виміру', '')), axis=1)
-df_nom['Фасування у літрах'] = df_nom['Номенклатура'].apply(calc_pack_liters)
-df_nom['Дрібне фасування'] = df_nom['Фасування у літрах'].apply(lambda x: 1 if x is not None and x < 0.1 else None)
+df_nom['Дрібне фасування'] = df_nom.apply(mark_small, axis=1)
 
-# 10) Перенесення колонки “Номенклатура з одиницею виміру” в початок та збереження
+# 13) Перенесення колонки та збереження результату
 cols = df_nom.columns.tolist()
 if 'Номенклатура з одиницею виміру' in cols:
     cols.remove('Номенклатура з одиницею виміру')
     df_nom = df_nom[['Номенклатура з одиницею виміру'] + cols]
+
 with pd.ExcelWriter(output_path, engine='openpyxl') as writer:
     df_nom.to_excel(writer, sheet_name='номенклатура', index=False)
+
 print('Готово! Результат збережено в', output_path)
