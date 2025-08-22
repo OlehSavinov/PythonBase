@@ -17,6 +17,8 @@ df_ref_raw = pd.read_excel(ref_path, sheet_name='спрПродукты')
 df_ref = df_ref_raw[df_ref_raw['Категорія'] == 'Насіння'][
     ['Загальна назва', 'Внутрішній код', 'Культура', 'Субкатегорія', 'Бренд']
 ]
+# Мапа субкатегорії за внутрішнім кодом (для спеціальної логіки Овочеві/Квіти)
+subcat_by_code = df_ref.set_index('Внутрішній код')['Субкатегорія']
 
 # 3) Завантажуємо додатковий словник культур та долучаємо до df_nom
 df_codes = pd.read_excel(ref_path, sheet_name='спрКоды')[["Код УКТЗЕД", "Культура"]]
@@ -39,7 +41,7 @@ codes_to_remove = [
     'NGAZ-000004','NSON-000375','NSAL-000074','NPOZ-000142','NBAK-000005',
     'NGOR-000046','NPOM-000066','NKUC-000047','NKAP-000043','NRED-000016',
     'NSAL-000243','NBUK-000011','NKAB-000008','NCIB-000016','NTSC-000011',
-    'NBUC-000135','NOGI-000164','NSAL-000245','NMAL-000005','NCHO-000016','NVIO-000010','NPER-000023','NCIK-000006','NPEL-000017'
+    'NBUC-000135','NOGI-000164','NSAL-000245','NMAL-000005','NCHO-000016','NVIO-000010','NPER-000023','NCIK-000006','NPEL-000017','NBAZ-000001'
 ]
 df_ref = df_ref[~df_ref['Внутрішній код'].isin(codes_to_remove)]
 
@@ -68,7 +70,7 @@ replacements = {
 
     # брендові/загальні
     'dkc': 'дкс', 'mas': 'мас', 'квс ': '', 'ес ': '', 'лг ': '', ' f1': '', ' сл':'',
-    'redigom': 'Редіго М', 'b360': 'В360', 'stine': 'стайн', 'ржт ': '',' клп':'',' сх':'','си':'','сс':'с','лл':'л',
+    'redigom': 'Редіго М', 'b360': 'В360', 'stine': 'стайн', 'ржт ': '',' клп':'',' сх':'','си':'','сс':'с','лл':'л','рр':'р',
 
     # загальні лат→укр літерні заміни (ПІСЛЯ лексем!)
     'й':'ї','и':'і','p':'п','h':'г','e':'е','f':'ф','l':'л',
@@ -192,23 +194,51 @@ def match_code(nom_text, culture, uktzed):
     toks = desc.split()
     toks = [_fix_pioneer_token(x) for x in toks]
     desc = ' '.join(toks)
+
+    # Синонім: помідор → томат (у різних формах)
+    desc_pad = ' ' + desc + ' '
+    for a in ['помідор', 'помідори', 'помидор', 'помидоры']:
+        desc_pad = desc_pad.replace(f' {a} ', ' томат ')
+    desc = ' '.join(desc_pad.split())
+
     search = desc.replace(',', '').replace('.', '').replace(' ', '')
 
     sub = df_ref.copy()
-    if uktzed in ['1209918000','1209919000']:
+    veg_flower_uktzeds = ['1209918000','1209919000','1209300000','1209']
+    is_veg = uktzed in ['1209918000','1209919000']
+    is_flower = uktzed == '1209300000'
+    is_veg_or_flower = uktzed in veg_flower_uktzeds
+
+    if is_veg:
         sub = sub[sub['Субкатегорія'] == 'Овочеві']
+    elif is_flower:
+        sub = sub[sub['Субкатегорія'] == 'Квіти']
     elif uktzed in ['1003','1001110000','1003100000']:
         sub = sub[sub['Культура'].isin(['Ячмінь озимий','Ячмінь ярий'])]
     elif uktzed in ['1001','1001912000']:
         sub = sub[sub['Культура'].isin(['Пшениця озима','Пшениця яра'])]
+    elif uktzed in ['1207700000']:
+        sub = sub[sub['Культура'].isin(['Диня','Кавун'])]
     elif uktzed in ['713101000']:
         sub = sub[sub['Культура'].isin(['Горох','Горох овочевий'])]
-    elif uktzed == '1209300000':
-        sub = sub[sub['Субкатегорія'] == 'Квіти']
     elif uktzed == '1209':
         sub = sub[sub['Субкатегорія'].isin(['Квіти','Овочеві'])]
     else:
         sub = sub[sub['Культура'] == culture]
+
+    # ДОДАТКОВО для Овочевих/Квітів: спробувати виявити культуру за назвою у номенклатурі
+    if is_veg_or_flower:
+        # Унікальні культури в межах поточного підмноження
+        cand_cultures = [c for c in sub['Культура'].dropna().unique()]
+        found_cult = None
+        desc_padded = ' ' + desc + ' '
+        for c in cand_cultures:
+            norm_c = normalize_and_replace(c)
+            if f' {norm_c} ' in desc_padded:
+                found_cult = c
+                break
+        if found_cult:
+            sub = sub[sub['Культура'] == found_cult]
 
     for _, row in sub.iterrows():
         norm = row['norm_name']
@@ -247,6 +277,12 @@ def calc_coeff(nom_text, unit_text, culture, inner_code):
         parsed = _extract_mass_from_text(nom_text)
         if parsed is not None:
             return parsed
+    # Овочеві/Квіти: як MASS_CULTURES, але у 1000 разів більше (кг-база)
+    subcat = subcat_by_code.get(inner_code) if 'subcat_by_code' in globals() else None
+    if subcat in ['Овочеві','Квіти'] and not (u in ['т','ттовпрод'] or u.startswith('кг') or u in ['ц','г']):
+        parsed_vk = _extract_mass_from_text(nom_text)
+        if parsed_vk is not None:
+            return parsed_vk * 1000.0
 
     txt = normalize_and_replace(nom_text)
 
@@ -336,6 +372,18 @@ df_nom['Коефіцієнт базової одиниці'] = df_nom.apply(
     axis=1
 )
 
+# Обмеження застосування логіки за культурами
+PROTECTANT_CULTURES = {
+    'Соняшник','Кукурудза','Буряк цукровий','Ріпак озимий','Пшениця озима',
+    'Жито','Соя','Ячмінь озимий','Кукурудза цукрова','Ячмінь ярий',
+    'Пшениця яра','Сорго','Ріпак ярий','Горох','Газонні трави'
+}
+GENERATION_CULTURES = {
+    'Пшениця озима','Соя','Ячмінь озимий','Ячмінь ярий','Пшениця яра','Горох',
+    'Ріпак озимий','Овес','Гречка','Люцерна','Соняшник','Горох озимий',
+    'Пшениця дворучка','Просо','Жито','Тритікале','Льон','Нут','Кукурудза','Ріпак ярий'
+}
+
 # 11) Препарати-протруйники
 pro_list_orig = [
     'Круїзер OSR','Круїзер','Форс Зеа','Вайбранс Інтеграл','Вайбранс',
@@ -359,6 +407,9 @@ def canon_protectant_text(text):
     # прибираємо зайву пунктуацію, щоб не заважала словним межам
     for ch in [',', '.', '+', '(', ')', '[', ']', '{', '}', ':', ';', '"', "'", '!', '?', '*']:
         s = s.replace(ch, ' ')
+    # додатково: & → пробіл, склейки boostgo → boost go
+    s = s.replace('&', ' ')
+    s = s.replace('boostgo', 'boost go')
     # нормалізація ключових лексем і синонімів
     s = ' '.join(s.split())
     s = s.replace('forcezea', 'force zea').replace('force zea', 'форс зеа')
@@ -371,7 +422,7 @@ def canon_protectant_text(text):
     s = s.replace('agrostart', 'агростарт')
     s = s.replace('royal flo', 'роялфло').replace('роял фло', 'роялфло')
     # вирівнюємо maxim/apron/poncho (враховуємо латинсько-кириличну "і")
-    s = s.replace('maxім', 'maxim')
+    s = s.replace('мaxim', 'maxim').replace('maxім', 'maxim')
     s = s.replace('maximxl', 'maxim xl').replace('maxim xl', 'максим xl').replace('maxim xl', 'максим xl')
     s = s.replace('apronxl', 'apron xl').replace('apron xl', 'апрон xl').replace('apron', 'апрон xl')
     s = s.replace('poncho', 'пончо')
@@ -408,9 +459,11 @@ def find_protectants(nom):
     pre = str(nom).lower()
     for ch in ['+', '_', '-', '–', '—', ',', '.', '(', ')', '[', ']', '{', '}', ':', ';', '"', "'", '!', '?', '*']:
         pre = pre.replace(ch, ' ')
+    pre = pre.replace('&', ' ')
     pre = ' '.join(pre.split())
 
     # розклеїти склеєні конструкції та синоніми
+    pre = pre.replace('boostgo', 'boost go')
     pre = pre.replace('максимxl', 'максим xl').replace('апронxl', 'апрон xl')
     for d in '0123456789':
         pre = pre.replace('xl'+d, 'xl '+d)
@@ -478,7 +531,10 @@ def find_protectants(nom):
         return 'Протруєне (НД)'
     return ''
 
-df_nom['Препарати-протруйники'] = df_nom['Номенклатура'].apply(find_protectants)
+df_nom['Препарати-протруйники'] = df_nom.apply(
+    lambda r: find_protectants(r['Номенклатура']) if str(r.get('Культура','')) in PROTECTANT_CULTURES else '',
+    axis=1
+)
 
 # 12) Демо-статус
 # Якщо в назві є 'демо' або 'demo' -> 'Демо'; якщо одиниця виміру у переліку вагових одиниць -> 'Вагове'; інакше 'Комерційне'
@@ -617,7 +673,10 @@ def _determine_generation_wrap(nom):
 
     return ''
 
-df_nom['Генерація'] = df_nom['Номенклатура'].apply(_determine_generation_wrap)
+df_nom['Генерація'] = df_nom.apply(
+    lambda r: _determine_generation_wrap(r['Номенклатура']) if str(r.get('Культура','')) in GENERATION_CULTURES else '',
+    axis=1
+)
 
 # 12) Запис результату та підсвічування нових колонок
 # Видаляємо колонку 'Культура' з результату
