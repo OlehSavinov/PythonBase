@@ -49,7 +49,7 @@ codes_to_remove = [
     'DMPO-001875','PGER-000888','DMIN-000284','DMPO-001862','PDES-000005',
     'DMIN-000327','PGER-000019','PGER-000845','PREG-000007','DMIN-000258',
     'DNPK-000078','DMMO-000322','PGER-000784','DMPO-002439','PGER-001293',
-    'DMPO-000733','DMPO-001056','PGER-001528'
+    'DMPO-000733','DMPO-001056','PGER-001528','PGER-000902'
 ]
 df_ref = df_ref[~df_ref['Внутрішній код'].isin(codes_to_remove)]
 
@@ -61,7 +61,7 @@ replacements = {
     'калійхлористий':'kcl','яравітабортрак':'yaravitabortrac',
     'інтермаг':'intermag','мілілітрів':'мл','пп':'п',
     'квантум':'quantum','гуміфілд':'humifield','нутрімікс':'nutrimix',
-    'КАС-32':'UAN-32'
+    'кас-32':'uan-32','брексіл':'brexil'
 }
 
 def normalize_and_replace(text):
@@ -142,7 +142,7 @@ def mark_small(row):
     typ = row.get('Тип УКТЗЕД','')
     if pd.isna(lit):
         return None
-    if typ == 'Добрива' and lit <= 10:
+    if typ == 'Добрива' and lit < 10:
         return 1
     if typ == 'ЗЗР' and lit <= 0.3:
         return 1

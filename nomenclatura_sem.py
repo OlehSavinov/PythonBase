@@ -75,7 +75,7 @@ replacements = {
     # загальні лат→укр літерні заміни (ПІСЛЯ лексем!)
     'й':'ї','и':'і','p':'п','h':'г','e':'е','f':'ф','l':'л',
     'c':'с','i':'і','r':'р','y':'у','d':'д','k':'к','n':'н','s':'с',
-    'm':'м','a':'а','u':'у','b':'б','t':'т','x':'х','o':'о'
+    'm':'м','a':'а','u':'у','b':'б','t':'т','x':'х','o':'о','h':'н','v':'в'
 }
 
 def normalize_and_replace(text):
@@ -302,7 +302,8 @@ def calc_coeff(nom_text, unit_text, culture, inner_code):
         return 1
 
     if culture == 'Жито':
-        if '25мн' in txt: return 25
+        if re.search(r'\b25\s*м[нn]\b', txt):
+            return 25
         return 1
 
     if culture in ['Ріпак озимий','Ріпак ярий']:
