@@ -49,7 +49,8 @@ codes_to_remove = [
     'DMPO-001875','PGER-000888','DMIN-000284','DMPO-001862','PDES-000005',
     'DMIN-000327','PGER-000019','PGER-000845','PREG-000007','DMIN-000258',
     'DNPK-000078','DMMO-000322','PGER-000784','DMPO-002439','PGER-001293',
-    'DMPO-000733','DMPO-001056','PGER-001528','PGER-000902'
+    'DMPO-000733','DMPO-001056','PGER-001528','PGER-000902','PINS-000084',
+    'PGER-000596'
 ]
 df_ref = df_ref[~df_ref['Внутрішній код'].isin(codes_to_remove)]
 
@@ -61,17 +62,17 @@ replacements = {
     'калійхлористий':'kcl','яравітабортрак':'yaravitabortrac',
     'інтермаг':'intermag','мілілітрів':'мл','пп':'п',
     'квантум':'quantum','гуміфілд':'humifield','нутрімікс':'nutrimix',
-    'кас-32':'uan-32','брексіл':'brexil'
+    'кас-32':'uan-32','брексіл':'brexil','мастер':'master'
 }
 
 def normalize_and_replace(text):
     s = str(text).lower()
-    # уніфікуємо дефіси різних типів в пробіли
     s = re.sub(r'[-–—]', ' ', s)
     for wrong, correct in replacements.items():
         s = s.replace(wrong, correct)
-    # Зберігаємо літери, цифри, пробіли, '+', '/', '*', ',', '.'
-    return re.sub(r'[^0-9a-zа-яіїєґ\+\*/\/,\. ]', '', s)
+    # Зберігаємо літери, цифри, пробіли, '+', '/', '*', ',', '.', '×' (перетворили у 'х', але хай лишається)
+    return re.sub(r'[^0-9a-zа-яіїєґ\+\*/\/,\. × ]', '', s)
+
 
 # 6) Підготовка довідника: нормалізовані назви
 df_ref['norm_name'] = df_ref['Загальна назва'].apply(normalize_and_replace)
@@ -102,21 +103,20 @@ def match_code(nom_text):
 # 9) Розрахунок коефіцієнту базової одиниці
 def calc_coeff(nom_text, unit_text):
     u = str(unit_text).lower().replace(' ', '').replace('.', '')
-    # валюта гривня
     if u == 'грн':
         return 1
-    # прямий мапінг одиниці
     for coeff, units in full_unit_map.items():
         if u in units:
             return coeff
-    # пошук по тексту (без 'т')
     txt = normalize_and_replace(nom_text)
     for coeff, units in text_unit_map.items():
         for unit in units:
-            pattern = rf"(?<!\d)(\d+[.,]?\d*)\s*{re.escape(unit)}\b"
-            for m in re.finditer(pattern, txt):
+            pattern = rf"(?<!\d)(\d+[.,]?\d*)\s*{re.escape(unit)}(?=$|\s|[,/)]|[xх\*×])"
+            m = re.search(pattern, txt)
+            if m:
                 return float(m.group(1).replace(',', '.')) * coeff
     return None
+
 
 # 10) Розрахунок фасування у літрах (最大값)
 def calc_pack_liters(nom_text):
@@ -124,10 +124,11 @@ def calc_pack_liters(nom_text):
     vals = []
     for coeff, units in text_unit_map.items():
         for unit in units:
-            pattern = rf"(?<!\d)(\d+[.,]?\d*)\s*{re.escape(unit)}\b"
+            pattern = rf"(?<!\d)(\d+[.,]?\d*)\s*{re.escape(unit)}(?=$|\s|[,/)]|[xх\*×])"
             for m in re.finditer(pattern, txt):
                 vals.append(float(m.group(1).replace(',', '.')) * coeff)
     return max(vals) if vals else None
+
 
 # 11) Застосування функцій до DataFrame
 df_nom['Внутрішній код'] = df_nom['Номенклатура'].apply(match_code)
@@ -142,7 +143,7 @@ def mark_small(row):
     typ = row.get('Тип УКТЗЕД','')
     if pd.isna(lit):
         return None
-    if typ == 'Добрива' and lit < 10:
+    if typ == 'Добрива' and lit <= 10:
         return 1
     if typ == 'ЗЗР' and lit <= 0.3:
         return 1
