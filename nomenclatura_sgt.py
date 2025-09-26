@@ -13,7 +13,9 @@ def clean_code(x):
     s = re.sub(r'[^0-9]', '', s)
     return s
 
-replacements = {'й':'ї','и':'і','мега':'mega'}
+replacements = {'мега':'mega','lexion':'лексіон','мтз':'беларус','diamant':'діамант','rubin':'рубін',
+                'dominator':'домінатор',
+                'й':'ї','и':'і','t':'т','r':'р','v':'в','o':'о','a':'а','c':'с','p':'р','m':'м','f':'ф','e':'е'}
 
 def normalize_and_replace(text):
     """
@@ -38,6 +40,37 @@ def strip_brand_prefix(name, brand):
         return name
     pattern = r'^\s*' + re.escape(str(brand)).strip() + r'[\s\-:]*'
     return re.sub(pattern, '', str(name), flags=re.IGNORECASE)
+
+def is_digits_only_name(s: str) -> bool:
+    """True, якщо в рядку немає літер, але є принаймні одна цифра (допускаємо пробіли/розділювачі)."""
+    if pd.isna(s):
+        return False
+    txt = str(s)
+    # якщо є будь-які букви — не підходить
+    if re.search(r'[a-zA-Zа-яА-Яіїєґ]', txt):
+        return False
+    # має бути хоч одна цифра
+    return bool(re.search(r'\d', txt))
+
+def extract_digit_tokens(s: str):
+    """Витягує числові токени: 12, 108, 24.5, 770, тощо."""
+    if pd.isna(s):
+        return []
+    return re.findall(r'\d+(?:[.,]\d+)?', str(s))
+
+def digits_only_sequence_matches(nom_text: str, tokens) -> bool:
+    """
+    Для 'числових' назв: підтверджуємо збіг, якщо:
+    - кожен сусідній токен у 'Загальній назві' в Номенклатурі розділений НЕцифровим символом;
+    - по краях збігу немає прилягання до інших цифр.
+    Приклади, що МАЮТЬ збіг: '24 36', '24x36', '24-SW-36', '400'
+    Приклади, що НЕ мають збігу: '2436' (бо токени прилягають цифрами), '1400'/'4000' (бо прилягання цифр з краю).
+    """
+    if not tokens:
+        return False
+    pattern = r'(?<!\d)' + r'\D+'.join(re.escape(t) for t in tokens) + r'(?!\d)'
+    return re.search(pattern, str(nom_text), flags=re.IGNORECASE) is not None
+
 
 # ------------------------ 1) Вхідні дані ------------------------
 df_nom = pd.read_excel(input_nom_path, sheet_name='номенклатура')
@@ -65,6 +98,7 @@ missing = required_cols - set(df_ref_raw.columns)
 if missing:
     raise KeyError(f"У листі 'спрПродукти_СГТ' відсутні колонки: {sorted(missing)}")
 
+
 # --- НОВЕ: фільтр за «небажаними» підрядками у 'Загальна назва'
 bad_substrings = [
     "агрегат","аератор","асенізац","борон","бункер","буртоукл","буряко","викорч","візок","газонокос",
@@ -73,7 +107,7 @@ bad_substrings = [
     "корчувач","косарк","культиватор","переробк","розрізан","міксер","молотарк","мотоблок","мульчувач","дрон",
     "обертач","компост","обмотувал","обприскувач","обрізувач","очисн","підрізчик","плуг","подрібн","підбирач",
     "пересадк","причеп","причіп","протруювач","розкидач","розпушувач","саджалк","зрошен","системонос","сівалк",
-    "скарифікатор","сортувал","трактор","ущільнювач","фреза","цистерн"
+    "скарифікатор","сортувал","трактор","ущільнювач","фреза","цистерн","компакт"
 ]
 
 # НЕзахоплююча група (?:...) + ігнор регістру
@@ -111,46 +145,68 @@ norm_len = (df_ref['Назва_для_аналізу'].astype(str)
             .str.len())
 df_ref = df_ref[norm_len >= 4]
 
-codes_to_remove = ['TMOT-000536', 'TPPI-000012', 'TKKO-000061', 'TKOM-000013', 'TKZE-000024', 'TMOT-000524',
-                   'TGAZ-000009', 'TBDI-000687', 'TOBP-000330', 'TBDI-000090', 'TKUL-000097']
+codes_to_remove = ['TBDI-000687','TKZE-001040','TMUL-000055','TKOV-000157','TTKL-000571','TZZE-000254','TSPR-000639',
+                   'TPLU-000577','TMOT-000385']
 df_ref = df_ref[~df_ref['Внутрішній код'].isin(codes_to_remove)].reset_index(drop=True)
 
 # Нормалізована назва (без пробілів, у lower) для substring-пошуку
 df_ref['norm_name'] = df_ref['Назва_для_аналізу'].apply(normalize_and_replace)
 
-# Індекс за субкатегоріями (усередині вже відсортовано за довжиною ↓)
+# Службові ознаки для числових назв
+df_ref['is_digits_only'] = df_ref['Назва_для_аналізу'].apply(is_digits_only_name)
+df_ref['digit_tokens']   = df_ref['Назва_для_аналізу'].apply(extract_digit_tokens)
+
+# Індекс за субкатегоріями (з нужними колонками)
 cat_to_ref = {
-    cat: sub_df[['Внутрішній код', 'norm_name']].reset_index(drop=True)
+    cat: sub_df[['Внутрішній код', 'norm_name', 'is_digits_only', 'digit_tokens']].reset_index(drop=True)
     for cat, sub_df in df_ref.groupby('Субкатегорія', sort=False)
 }
-# Глобальний список для fallback-пошуку по інших субкатегоріях
-df_ref_all = df_ref[['Внутрішній код', 'norm_name', 'Субкатегорія']].reset_index(drop=True)
+
+# Глобальний список для fallback-пошуку (також з нужними колонками)
+df_ref_all = df_ref[['Внутрішній код', 'norm_name', 'Субкатегорія', 'is_digits_only', 'digit_tokens']].reset_index(drop=True)
+
 
 # ------------------------ 5) Пошук у 2 етапи ------------------------
 def match_code_two_stage(nom_text, allowed_category):
     """
     Етап 1: шукаємо тільки в allowed_category.
     Етап 2 (fallback): якщо не знайшли — шукаємо по інших субкатегоріях.
-    Нормалізація номенклатури: без пробілів + lower, щоб 'Maestro 24SW' ~ 'Maestro 24 SW'.
+
+    Додаткова логіка:
+    - Якщо 'Назва_для_аналізу' (довідник) складається лише з чисел/розділювачів,
+      то підтверджуємо збіг ТІЛЬКИ коли ці числа в Номенклатурі:
+        * НЕ прилягають до інших цифр зліва/справа (границі збігу),
+        * і між послідовними числами є НЕцифровий символ.
     """
     search = normalize_and_replace(nom_text)
+    raw_nom = '' if pd.isna(nom_text) else str(nom_text)
 
     # Етап 1 — всередині категорії
     if pd.notna(allowed_category):
         sub = cat_to_ref.get(str(allowed_category))
         if sub is not None and not sub.empty:
             for _, row in sub.iterrows():
-                if row['norm_name'] and row['norm_name'] in search:
-                    return row['Внутрішній код']
+                if not row['is_digits_only']:
+                    if row['norm_name'] and row['norm_name'] in search:
+                        return row['Внутрішній код']
+                else:
+                    # для числових назв — суворий збіг із розділювачами/межами
+                    if digits_only_sequence_matches(raw_nom, row['digit_tokens']):
+                        return row['Внутрішній код']
 
     # Етап 2 — по інших категоріях
     for _, row in df_ref_all.iterrows():
         if pd.notna(allowed_category) and str(row['Субкатегорія']) == str(allowed_category):
             continue
-        if row['norm_name'] and row['norm_name'] in search:
-            return row['Внутрішній код']
+        if not row['is_digits_only']:
+            if row['norm_name'] and row['norm_name'] in search:
+                return row['Внутрішній код']
+        else:
+            if digits_only_sequence_matches(raw_nom, row['digit_tokens']):
+                return row['Внутрішній код']
 
     return None
+
 
 # ------------------------ 6) Застосування до номенклатури ------------------------
 df_nom['Внутрішній код'] = [
@@ -158,16 +214,52 @@ df_nom['Внутрішній код'] = [
     for nm, cat in zip(df_nom['Номенклатура'], df_nom['Культура'])
 ]
 
+# ------------------------ 6.1) Додаємо «Загальна назва» з довідника ------------------------
+# Беремо оригінальну «Загальна назва» із довідника (після фільтрів стоп-слів),
+# але виключаємо коди, які ми вилучали у codes_to_remove
+df_ref_lookup = (
+    df_ref_raw.loc[~df_ref_raw['Внутрішній код'].isin(codes_to_remove), ['Внутрішній код', 'Загальна назва']]
+    .drop_duplicates(subset=['Внутрішній код'])
+)
+
+# Ліве злиття до результату за кодом
+df_nom = df_nom.merge(df_ref_lookup, on='Внутрішній код', how='left')
+
 # ------------------------ 7) Фінальне впорядкування та збереження ------------------------
+# Піднімемо службові та ключові колонки
 cols = df_nom.columns.tolist()
+
+# Якщо є колона з Номенклатурою+од.вим., ставимо її першою
+leading = []
 if 'Номенклатура з одиницею виміру' in cols:
-    cols.remove('Номенклатура з одиницею виміру')
-    df_nom = df_nom[['Номенклатура з одиницею виміру'] + cols]
+    leading.append('Номенклатура з одиницею виміру')
 
 # Приберемо службову колонку
-df_nom = df_nom.drop(columns=['_code_norm'])
+if '_code_norm' in df_nom.columns:
+    df_nom = df_nom.drop(columns=['_code_norm'])
 
+# Запис Excel
 with pd.ExcelWriter(output_path, engine='openpyxl') as writer:
     df_nom.to_excel(writer, sheet_name='номенклатура', index=False)
+
+# ------------------------ 7.1) Підфарбувати колонки у синій ------------------------
+from openpyxl import load_workbook
+from openpyxl.styles import Font
+
+wb = load_workbook(output_path)
+ws = wb['номенклатура']
+
+# Мапа заголовок -> індекс колонки (1-based)
+header_to_idx = {cell.value: idx for idx, cell in enumerate(ws[1], start=1)}
+
+blue_font = Font(color="0000FF")  # синій колір
+
+for col_name in ['Внутрішній код', 'Загальна назва']:
+    col_idx = header_to_idx.get(col_name)
+    if col_idx:
+        for r in range(2, ws.max_row + 1):
+            ws.cell(row=r, column=col_idx).font = "#A89064"
+
+wb.save(output_path)
 
 print('Готово! Результат збережено в', output_path)
