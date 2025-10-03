@@ -151,13 +151,23 @@ def mark_small(row):
 
 df_nom['Дрібне фасування'] = df_nom.apply(mark_small, axis=1)
 
-# 13) Перенесення колонки та збереження результату
+# 13) Перенесення колонок та збереження результату
 cols = df_nom.columns.tolist()
+
+# Переносимо "Номенклатура з одиницею виміру" на перше місце (як було)
 if 'Номенклатура з одиницею виміру' in cols:
     cols.remove('Номенклатура з одиницею виміру')
-    df_nom = df_nom[['Номенклатура з одиницею виміру'] + cols]
+    cols = ['Номенклатура з одиницею виміру'] + cols
+
+# Переносимо "Внутрішній код" в кінець
+if 'Внутрішній код' in cols:
+    cols.remove('Внутрішній код')
+    cols = cols + ['Внутрішній код']
+
+df_nom = df_nom[cols]
 
 with pd.ExcelWriter(output_path, engine='openpyxl') as writer:
     df_nom.to_excel(writer, sheet_name='номенклатура', index=False)
 
 print('Готово! Результат збережено в', output_path)
+
