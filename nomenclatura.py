@@ -38,7 +38,7 @@ codes_to_remove = [
     'PROD-000063','PGER-000573','PFUN-000119','PGER-000440','PINK-000022',
     'PPAR-000111','DMPO-001841','PGER-000005','PGER-000562','PFUN-000350',
     'PPAR-000255','PGER-000373','PINS-000314','PGER-000803','DMPO-001278',
-    'PGER-000998','PROD-000064','PGER-000680','DMPO-001910','DMPO-001617',
+    'PGER-000998','PGER-000680','DMPO-001910','DMPO-001617','PGER-000596',
     'PREG-000179','PREG-000116','DMPO-000712','PGER-001458','PGER-000578',
     'PREG-000118','DMPO-000853','PINK-000085','PFUN-000578','PGER-000131',
     'PGER-001098','PGER-000330','PINS-000185','PPRT-000179','PPRT-000113',
@@ -49,8 +49,8 @@ codes_to_remove = [
     'DMPO-001875','PGER-000888','DMIN-000284','DMPO-001862','PDES-000005',
     'DMIN-000327','PGER-000019','PGER-000845','PREG-000007','DMIN-000258',
     'DNPK-000078','DMMO-000322','PGER-000784','DMPO-002439','PGER-001293',
-    'DMPO-000733','DMPO-001056','PGER-001528','PGER-000902','PINS-000084',
-    'PGER-000596'
+    'DMPO-000733','DMPO-001056','PGER-001528','PGER-000902','PINS-000084'
+
 ]
 df_ref = df_ref[~df_ref['Внутрішній код'].isin(codes_to_remove)]
 
@@ -62,7 +62,7 @@ replacements = {
     'калійхлористий':'kcl','яравітабортрак':'yaravitabortrac',
     'інтермаг':'intermag','мілілітрів':'мл','пп':'п',
     'квантум':'quantum','гуміфілд':'humifield','нутрімікс':'nutrimix',
-    'кас-32':'uan-32','брексіл':'brexil','мастер':'master'
+    'кас-32':'uan-32','брексіл':'brexil','мастер':'master','грінфорт':'greenfort', 'калій хлористий':'KCl_2'
 }
 
 def normalize_and_replace(text):
