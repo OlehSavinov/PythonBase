@@ -172,7 +172,7 @@ df_ref = df_ref[norm_len >= 4]
 
 codes_to_remove = ['TBDI-000687','TKZE-001040','TMUL-000055','TKOV-000157','TTKL-000571','TZZE-000254','TSPR-000639',
                    'TPLU-000577','TMOT-000385','TKZE-001235','TVIZ-000184','TMOT-000420','TZKU-000398','TVIZ-000504',
-                   'TSPR-000851','TTKL-001784','TKOS-000315','TGLI-000294']
+                   'TSPR-000851','TTKL-001784','TKOS-000315','TGLI-000294','TKUL-001494']
 df_ref = df_ref[~df_ref['Внутрішній код'].isin(codes_to_remove)].reset_index(drop=True)
 
 # Нормалізована назва (без пробілів, у lower) для substring-пошуку
